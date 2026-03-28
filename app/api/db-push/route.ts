@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { pushDevSchema } from '@payloadcms/drizzle'
 
 /**
  * POST /api/db-push
- * Pushes the Payload schema to the connected database (Drizzle push).
- * Protected by ADMIN_SECRET header. Run once after first deploy.
+ * Verifies the database connection and schema by attempting a simple query.
+ * To initialize the schema, run the dev server locally with DATABASE_URL set —
+ * Payload will auto-push the schema via pushDevSchema on first startup.
+ * Protected by ADMIN_SECRET header.
  */
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-admin-secret')
@@ -16,12 +17,17 @@ export async function POST(req: NextRequest) {
 
   try {
     const payload = await getPayload({ config })
-    // Temporarily bypass NODE_ENV check by calling pushDevSchema directly
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await pushDevSchema(payload.db as any)
-    return NextResponse.json({ success: true, message: 'Schema pushed to database.' })
+    const count = await payload.count({ collection: 'users' })
+    return NextResponse.json({
+      success: true,
+      message: 'Database connected and schema verified.',
+      userCount: count.totalDocs,
+    })
   } catch (err) {
     console.error('[db-push]', err)
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({
+      error: String(err),
+      hint: 'Run `npm run dev` locally with DATABASE_URL set to push the schema to Neon.',
+    }, { status: 500 })
   }
 }
