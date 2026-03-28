@@ -1,0 +1,31 @@
+{
+  "name": "OPAC — Oasis Pailles Archery Club",
+  "short_name": "OPAC",
+  "description": "Archery club management app for members, coaches and administrators.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F7F4",
+  "theme_color": "#2E7D4F",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["sports", "productivity"],
+  "screenshots": []
+}

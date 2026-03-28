@@ -9,18 +9,41 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "react": "^18",
-    "react-dom": "^18",
-    "next": "14.2.35"
+    "@clerk/nextjs": "^7.0.7",
+    "@hookform/resolvers": "^5.2.2",
+    "@payloadcms/db-postgres": "^3.80.0",
+    "@payloadcms/db-sqlite": "^3.80.0",
+    "@payloadcms/next": "^3.80.0",
+    "@payloadcms/richtext-lexical": "^3.80.0",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@types/qrcode": "^1.5.6",
+    "@vercel/blob": "^2.3.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "face-api.js": "^0.22.2",
+    "framer-motion": "^12.38.0",
+    "html5-qrcode": "^2.3.8",
+    "lucide-react": "^1.7.0",
+    "next": "^16.2.1",
+    "next-pwa": "^5.6.0",
+    "payload": "^3.80.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-hook-form": "^7.72.0",
+    "recharts": "^3.8.1",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.5.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.35",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.35"
+    "typescript": "^5"
   }
 }
