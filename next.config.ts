@@ -21,6 +21,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Prevent Next.js from bundling packages that use dynamic require()
+  serverExternalPackages: ["drizzle-kit", "@payloadcms/drizzle"],
 };
 
 export default withPWA(withPayload(nextConfig));
