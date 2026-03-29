@@ -91,7 +91,7 @@ export default function ScoreEntryClient({ archerPayloadId }: Props) {
     })
   }
 
-  const endTotals = grid.map(end => end.reduce((s, v) => s + numericValue(v), 0))
+  const endTotals = grid.map(end => end.reduce((s: number, v) => s + numericValue(v), 0))
   const grandTotal = endTotals.reduce((s, v) => s + v, 0)
 
   const todayFormatted = new Date().toLocaleDateString('en-GB', {
