@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
 import { ScreenHeader } from '@/components/ui/opac'
+import { QRImage } from '@/components/ui/opac/QRImage'
 
 export const metadata = { title: 'Dashboard — OPAC' }
 
@@ -138,19 +139,7 @@ export default async function DashboardPage() {
               </div>
             ) : (
               /* Personal QR code for check-in at the range */
-              <div className="flex flex-col items-center gap-1">
-                <img
-                  src={`/images/qr-${archerId.toLowerCase()}.png`}
-                  alt="Your QR code"
-                  width={64}
-                  height={64}
-                  className="rounded-[8px] border border-opac-border"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = '/images/qr-default.png'
-                  }}
-                />
-                <span className="font-body text-[10px] text-opac-ink-30">Show to check in</span>
-              </div>
+              <QRImage archerId={archerId} />
             )}
           </div>
         </div>
