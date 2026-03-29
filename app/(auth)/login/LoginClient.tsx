@@ -34,9 +34,13 @@ export default function LoginClient() {
         return
       }
 
-      const redirectTo = searchParams.get('redirect_url') ?? '/dashboard'
-      // Full page navigation ensures the new cookie is sent with the next request
-      window.location.href = redirectTo
+      // First-time users complete onboarding before reaching dashboard
+      if (data.setupComplete === false) {
+        window.location.href = '/setup/profile'
+      } else {
+        const redirectTo = searchParams.get('redirect_url') ?? '/dashboard'
+        window.location.href = redirectTo
+      }
     } catch {
       setError('Network error. Please try again.')
       setLoading(false)

@@ -22,7 +22,7 @@ export default async function ScoresPage() {
     sort: '-date',
     limit: 20,
   })
-  type ScoreDoc = { id: string | number; points?: number; maxPoints?: number; roundType?: string; date?: string; notes?: string }
+  type ScoreDoc = { id: string | number; points?: number; maxPoints?: number; roundType?: string; scoringFormat?: string; date?: string; notes?: string }
   const scores = scoresResult.docs as unknown as ScoreDoc[]
 
   const avgScore = scores.length
@@ -87,6 +87,11 @@ export default async function ScoresPage() {
                   <div className="flex flex-col items-end gap-1">
                     {pct !== null && (
                       <span className="font-body text-[13px] font-semibold text-opac-ink">{pct}%</span>
+                    )}
+                    {score.scoringFormat && (
+                      <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-opac-surface text-opac-ink-60">
+                        {score.scoringFormat} round
+                      </span>
                     )}
                     <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
                       score.roundType === 'competition'

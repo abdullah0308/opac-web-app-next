@@ -91,7 +91,9 @@ export default function FaceEnrollClient() {
       if (res.ok) {
         streamRef.current?.getTracks().forEach(t => t.stop())
         setState('success')
-        setTimeout(() => router.push('/profile'), 2500)
+        // Mark onboarding complete then go to dashboard
+        await fetch('/api/complete-setup', { method: 'POST' }).catch(() => {})
+        setTimeout(() => { window.location.href = '/dashboard' }, 2500)
       } else {
         const data = await res.json()
         setError(data.error ?? 'Enrollment failed.')

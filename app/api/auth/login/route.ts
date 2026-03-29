@@ -51,9 +51,10 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const loggedInUser = loginResult.user as { id: string | number; name?: string; archerId?: string; roles?: string[] }
+    const loggedInUser = loginResult.user as { id: string | number; name?: string; archerId?: string; roles?: string[]; setupComplete?: boolean }
     const response = NextResponse.json({
       success: true,
+      setupComplete: loggedInUser.setupComplete ?? false,
       user: {
         id: loggedInUser.id,
         name: loggedInUser.name,

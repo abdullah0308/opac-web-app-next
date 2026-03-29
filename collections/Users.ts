@@ -85,5 +85,14 @@ export const Users: CollectionConfig = {
         description: 'Whether the user has enrolled a face descriptor',
       },
     },
+    {
+      name: 'setupComplete',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'Whether the user has completed the first-login onboarding (avatar + face ID choice)',
+        position: 'sidebar',
+      },
+    },
   ],
 }

@@ -9,6 +9,8 @@ const PUBLIC_PREFIXES = [
   '/api/webhooks/',
   '/api/db-push',
   '/api/seed',
+  '/api/seed-update',
+  '/setup/profile',
   // Payload CMS panel handles its own authentication
   '/admin',
 ]

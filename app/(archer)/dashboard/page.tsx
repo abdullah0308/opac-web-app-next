@@ -94,6 +94,8 @@ export default async function DashboardPage() {
     weekday: 'long', day: 'numeric', month: 'long',
   })
 
+  const archerId = (user.archerId as string | undefined) ?? ''
+
   return (
     <>
       {/* Dashboard header */}
@@ -135,9 +137,20 @@ export default async function DashboardPage() {
                 <span className="font-body text-[13px] font-bold text-[#16A34A]">Present</span>
               </div>
             ) : (
-              <Link href="/scan/qr" className="bg-opac-surface border border-opac-border rounded-full px-4 py-2">
-                <span className="font-body text-[13px] font-semibold text-opac-ink-60">Check in</span>
-              </Link>
+              /* Personal QR code for check-in at the range */
+              <div className="flex flex-col items-center gap-1">
+                <img
+                  src={`/images/qr-${archerId.toLowerCase()}.png`}
+                  alt="Your QR code"
+                  width={64}
+                  height={64}
+                  className="rounded-[8px] border border-opac-border"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = '/images/qr-default.png'
+                  }}
+                />
+                <span className="font-body text-[10px] text-opac-ink-30">Show to check in</span>
+              </div>
             )}
           </div>
         </div>
@@ -200,16 +213,10 @@ export default async function DashboardPage() {
         )}
 
         {/* Quick actions */}
-        <div className="flex gap-2.5">
-          <Link href="/scan/qr"
-            className="flex-1 h-12 rounded-[12px] bg-opac-green text-white font-body text-[14px] font-semibold flex items-center justify-center gap-1.5">
-            📷 Scan QR
-          </Link>
-          <Link href="/scores/new"
-            className="flex-1 h-12 rounded-[12px] border-[1.5px] border-opac-green text-opac-green font-body text-[14px] font-semibold flex items-center justify-center gap-1.5">
-            🎯 Add Score
-          </Link>
-        </div>
+        <Link href="/scores/new"
+          className="w-full h-12 rounded-[12px] bg-opac-green text-white font-body text-[14px] font-semibold flex items-center justify-center gap-1.5">
+          🎯 Add Score
+        </Link>
       </div>
     </>
   )

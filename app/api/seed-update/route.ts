@@ -3,9 +3,10 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 
 /**
- * GET /api/seed
- * Creates the initial AM0032 user (and Wolves clan) if they do not already exist.
- * Run once after first deploy / database reset.
+ * GET /api/seed-update
+ * Updates the existing AM0032 user with full profile data.
+ * Also creates the Wolves clan if it does not exist.
+ * Safe to run multiple times.
  */
 export async function GET() {
   try {
@@ -28,32 +29,24 @@ export async function GET() {
       clanId = clan.id
     }
 
-    // Check if AM0032 already exists
+    // Find AM0032
     const existing = await payload.find({
       collection: 'users',
       where: { archerId: { equals: 'AM0032' } },
       limit: 1,
     })
 
-    if (existing.docs.length > 0) {
-      return NextResponse.json({
-        message: 'User AM0032 already exists — no action taken.',
-        id: existing.docs[0].id,
-        clanId,
-      })
+    if (existing.docs.length === 0) {
+      return NextResponse.json({ error: 'User AM0032 not found. Run /api/seed first.' }, { status: 404 })
     }
 
-    // Create the user — Payload hashes the password automatically
-    const user = await payload.create({
+    const userId = existing.docs[0].id
+
+    // Patch all profile fields
+    const updated = await payload.update({
       collection: 'users',
+      id: userId,
       data: {
-        archerId: 'AM0032',
-        name: 'Admin Archer',
-        email: 'am0032@opac.app',
-        password: '0P@C26',
-        roles: ['archer', 'coach', 'admin'],
-        active: true,
-        faceEnrolled: false,
         setupComplete: true,
         bowType: 'recurve',
         gender: 'male',
@@ -65,12 +58,12 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: 'User AM0032 created successfully.',
-      id: user.id,
+      message: 'AM0032 profile updated successfully.',
+      id: updated.id,
       clanId,
     })
   } catch (err) {
-    console.error('[seed]', err)
+    console.error('[seed-update]', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 }
