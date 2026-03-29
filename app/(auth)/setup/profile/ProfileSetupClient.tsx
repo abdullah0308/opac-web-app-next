@@ -34,11 +34,11 @@ export default function ProfileSetupClient() {
       form.append('file', file)
       const res = await fetch('/api/upload/avatar', { method: 'POST', body: form })
       if (!res.ok) throw new Error('Upload failed')
-      setStep('faceid')
     } catch {
-      setError('Could not upload photo. You can skip and add it later from your profile.')
+      // Upload failed — non-blocking, user can update photo from profile later
     } finally {
       setUploading(false)
+      setStep('faceid')
     }
   }
 

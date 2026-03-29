@@ -31,9 +31,9 @@ export default function FaceEnrollClient() {
       try {
         const faceapi = (await import('face-api.js')).default
         await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
-          faceapi.nets.faceLandmark68TinyNet.loadFromUri('/models'),
-          faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+          faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
+          faceapi.nets.faceLandmark68TinyNet.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
+          faceapi.nets.faceRecognitionNet.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
         ])
         if (cancelled) return
         setModelsLoaded(true)
