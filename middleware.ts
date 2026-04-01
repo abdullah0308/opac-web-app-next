@@ -8,6 +8,7 @@ const PUBLIC_PREFIXES = [
   '/api/payload/',
   '/api/webhooks/',
   '/api/db-push',
+  '/api/db-migrate',
   '/api/seed',
   '/api/seed-update',
   '/setup/profile',
