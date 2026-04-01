@@ -67,16 +67,24 @@ export default async function ProfilePage() {
                 ? new Date(user.dateOfBirth as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
                 : '—',
             },
-            {
-              label: 'Face ID',
-              value: user.faceEnrolled ? 'Enrolled' : 'Not enrolled',
-            },
           ].map(({ label, value }) => (
             <div key={label} className="flex items-center justify-between px-4 py-3.5">
               <span className="font-body text-[14px] text-opac-ink-60">{label}</span>
               <span className="font-body text-[14px] font-semibold text-opac-ink capitalize">{value}</span>
             </div>
           ))}
+          {/* Face ID — tappable to enroll / re-enroll */}
+          <a href="/scan/face/enroll" className="flex items-center justify-between px-4 py-3.5">
+            <span className="font-body text-[14px] text-opac-ink-60">Face ID</span>
+            <div className="flex items-center gap-2">
+              <span className={`font-body text-[14px] font-semibold ${user.faceEnrolled ? 'text-opac-green' : 'text-opac-ink-60'}`}>
+                {user.faceEnrolled ? 'Enrolled' : 'Not enrolled'}
+              </span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 4L10 8L6 12" stroke="#9CA3AF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          </a>
         </div>
         <LogoutButton />
       </div>
