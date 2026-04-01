@@ -47,12 +47,20 @@ export async function POST(req: NextRequest) {
       limit: 1,
     })
 
-    const session = sessionResult.docs[0]
+    let session = sessionResult.docs[0]
     if (!session) {
-      return NextResponse.json(
-        { error: 'No active session found for today' },
-        { status: 404 }
-      )
+      // Auto-create a daily session so face check-in always works
+      const dateLabel = new Date().toLocaleDateString('en-GB', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+      })
+      session = await payload.create({
+        collection: 'sessions',
+        data: {
+          name: `Training — ${dateLabel}`,
+          date: `${today}T00:00:00.000Z`,
+          active: true,
+        },
+      })
     }
 
     // Check for duplicate

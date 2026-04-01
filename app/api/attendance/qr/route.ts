@@ -4,54 +4,69 @@ import config from '@payload-config'
 
 /**
  * POST /api/attendance/qr
- * Body: { qrCode: string, archerId: string }
+ * Body: { archerId: string }
  *
- * Validates the QR code against an active session, checks for duplicate
- * attendance today, then creates an attendance record.
+ * The archer's personal QR code encodes their archerId (e.g. "AM0032").
+ * Finds or auto-creates today's session, then records attendance.
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { qrCode, archerId } = body as { qrCode?: string; archerId?: string }
+    const { archerId } = body as { archerId?: string }
 
-    if (!qrCode || !archerId) {
-      return NextResponse.json(
-        { error: 'qrCode and archerId are required' },
-        { status: 400 }
-      )
+    if (!archerId) {
+      return NextResponse.json({ error: 'archerId is required' }, { status: 400 })
     }
 
     const payload = await getPayload({ config })
 
-    // 1. Find a matching active session with this QR code that hasn't expired
-    const now = new Date().toISOString()
+    // 1. Find the archer by archerId
+    const archerResult = await payload.find({
+      collection: 'users',
+      where: { archerId: { equals: archerId.toUpperCase() } },
+      limit: 1,
+    })
+
+    const archer = archerResult.docs[0]
+    if (!archer) {
+      return NextResponse.json({ error: 'Archer not found' }, { status: 404 })
+    }
+
+    // 2. Find or auto-create today's session
+    const today = new Date().toISOString().split('T')[0]
     const sessionResult = await payload.find({
       collection: 'sessions',
       where: {
         and: [
-          { qrCode: { equals: qrCode } },
           { active: { equals: true } },
-          { qrExpiresAt: { greater_than: now } },
+          { date: { greater_than_equal: `${today}T00:00:00.000Z` } },
         ],
       },
+      sort: '-date',
       limit: 1,
     })
 
-    const session = sessionResult.docs[0]
+    let session = sessionResult.docs[0]
     if (!session) {
-      return NextResponse.json(
-        { error: 'QR code is invalid or has expired' },
-        { status: 404 }
-      )
+      const dateLabel = new Date().toLocaleDateString('en-GB', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+      })
+      session = await payload.create({
+        collection: 'sessions',
+        data: {
+          name: `Training — ${dateLabel}`,
+          date: `${today}T00:00:00.000Z`,
+          active: true,
+        },
+      })
     }
 
-    // 2. Check for duplicate attendance today
-    const today = new Date().toISOString().split('T')[0]
+    // 3. Check for duplicate attendance today
     const duplicate = await payload.find({
       collection: 'attendance',
       where: {
         and: [
-          { archer: { equals: archerId } },
+          { archer: { equals: archer.id } },
           { session: { equals: session.id } },
           { timestamp: { greater_than_equal: `${today}T00:00:00.000Z` } },
         ],
@@ -66,11 +81,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 3. Create attendance record
+    // 4. Create attendance record
     const record = await payload.create({
       collection: 'attendance',
       data: {
-        archer: archerId,
+        archer: archer.id as string,
         session: session.id as string,
         method: 'qr',
         status: 'present',
@@ -78,17 +93,11 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Populate names for the response
-    const archerResult = await payload.findByID({
-      collection: 'users',
-      id: archerId,
-    })
-
     return NextResponse.json({
       success: true,
       attendanceId: record.id,
       sessionName: session.name as string,
-      archerName: archerResult.name as string,
+      archerName: archer.name as string,
     })
   } catch (err) {
     console.error('[QR attendance]', err)

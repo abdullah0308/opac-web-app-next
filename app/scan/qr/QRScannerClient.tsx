@@ -88,11 +88,14 @@ export default function QRScannerClient() {
   }, [])
 
   async function handleQRCode(qrCode: string) {
+    // The QR code encodes the archer's archerId (e.g. "AM0032")
+    // Strip any "OPAC:" prefix if present
+    const parsedArcherId = qrCode.replace(/^OPAC:/i, '').trim()
     try {
       const res = await fetch('/api/attendance/qr', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qrCode, archerId }),
+        body: JSON.stringify({ archerId: parsedArcherId }),
       })
       const data = await res.json()
       if (res.ok) {
@@ -159,7 +162,7 @@ export default function QRScannerClient() {
           {state === 'active' && (
             <>
               <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 15, textAlign: 'center', margin: 0 }}>
-                Point camera at the session QR code
+                Point camera at the archer's QR code
               </p>
               {/* Viewfinder overlay */}
               <div style={{ width: 260, height: 260, position: 'relative' }}>

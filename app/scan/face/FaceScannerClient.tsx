@@ -16,6 +16,9 @@ interface FaceDescriptor {
   descriptor: number[]
 }
 
+const CDN = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'
+const MODEL_STEPS = ['Face detector (1/3)', 'Face landmarks (2/3)', 'Face recognition (3/3)']
+
 const SCANNING_CSS = `
   @keyframes face-pulse-ring {
     0%, 100% { opacity: 0.22; transform: scale(1); }
@@ -104,7 +107,7 @@ export default function FaceScannerClient() {
   const [state, setState] = useState<ScanState>('loading')
   const [result, setResult] = useState<ScanResult>({})
   const [modelsLoaded, setModelsLoaded] = useState(false)
-  const [loadingLabel, setLoadingLabel] = useState('Loading models…')
+  const [loadStep, setLoadStep] = useState(0)
 
   // Load face-api models and start camera
   useEffect(() => {
@@ -112,18 +115,27 @@ export default function FaceScannerClient() {
 
     async function init() {
       try {
-        setLoadingLabel('Loading face models…')
-        const faceapi = (await import('face-api.js')).default
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error('Camera not supported on this device.')
+        }
 
-        await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
-          faceapi.nets.faceLandmark68TinyNet.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
-          faceapi.nets.faceRecognitionNet.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
-        ])
+        const faceapi = (await import('face-api.js')).default
+        const nets = [
+          faceapi.nets.tinyFaceDetector,
+          faceapi.nets.faceLandmark68TinyNet,
+          faceapi.nets.faceRecognitionNet,
+        ]
+        for (let i = 0; i < nets.length; i++) {
+          if (cancelled) return
+          setLoadStep(i)
+          await Promise.race([
+            nets[i].loadFromUri(CDN),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 30000)),
+          ])
+        }
 
         if (cancelled) return
         setModelsLoaded(true)
-        setLoadingLabel('Starting camera…')
 
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
@@ -140,7 +152,16 @@ export default function FaceScannerClient() {
       } catch (err) {
         console.error('[FaceScanner] init failed', err)
         if (!cancelled) {
-          setResult({ error: 'Could not start camera or load models. Please check permissions.' })
+          const msg = err instanceof Error ? err.message : ''
+          let errorMsg = 'Could not start camera or load models.'
+          if (msg === 'timeout') {
+            errorMsg = 'Models are taking too long. Check your internet connection and try again.'
+          } else if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('denied')) {
+            errorMsg = 'Camera permission denied. Please allow camera access in your browser settings.'
+          } else if (msg.toLowerCase().includes('not supported')) {
+            errorMsg = msg
+          }
+          setResult({ error: errorMsg })
           setState('error')
         }
       }
@@ -317,7 +338,7 @@ export default function FaceScannerClient() {
                 ))}
               </div>
               <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 14, textAlign: 'center', margin: 0 }}>
-                {loadingLabel}
+                {modelsLoaded ? 'Starting camera…' : `Loading ${MODEL_STEPS[loadStep]}…`}
               </p>
             </>
           )}

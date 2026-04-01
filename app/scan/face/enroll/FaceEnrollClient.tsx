@@ -16,11 +16,19 @@ const ENROLL_CSS = `
   }
 `
 
+const CDN = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'
+const MODEL_STEPS = [
+  'Face detector (1/3)',
+  'Face landmarks (2/3)',
+  'Face recognition (3/3)',
+]
+
 export default function FaceEnrollClient() {
   const router = useRouter()
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const [state, setState] = useState<EnrollState>('loading')
+  const [loadStep, setLoadStep] = useState(0)
   const [error, setError] = useState('')
   const [modelsLoaded, setModelsLoaded] = useState(false)
 
@@ -29,12 +37,27 @@ export default function FaceEnrollClient() {
 
     async function init() {
       try {
+        // Check camera permission first
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error('Camera not supported on this device.')
+        }
+
         const faceapi = (await import('face-api.js')).default
-        await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
-          faceapi.nets.faceLandmark68TinyNet.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
-          faceapi.nets.faceRecognitionNet.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
-        ])
+
+        // Load models sequentially with progress + 30s timeout per model
+        const nets = [
+          faceapi.nets.tinyFaceDetector,
+          faceapi.nets.faceLandmark68TinyNet,
+          faceapi.nets.faceRecognitionNet,
+        ]
+        for (let i = 0; i < nets.length; i++) {
+          if (cancelled) return
+          setLoadStep(i)
+          await Promise.race([
+            nets[i].loadFromUri(CDN),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 30000)),
+          ])
+        }
         if (cancelled) return
         setModelsLoaded(true)
 
@@ -51,7 +74,16 @@ export default function FaceEnrollClient() {
       } catch (err) {
         console.error('[FaceEnroll] init', err)
         if (!cancelled) {
-          setError('Could not access camera or load models.')
+          const msg = err instanceof Error ? err.message : ''
+          if (msg === 'timeout') {
+            setError('Models are taking too long. Check your internet connection and try again.')
+          } else if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('denied')) {
+            setError('Camera permission denied. Please allow camera access in your browser settings.')
+          } else if (msg.toLowerCase().includes('not supported')) {
+            setError(msg)
+          } else {
+            setError('Could not start camera or load face detection models.')
+          }
           setState('error')
         }
       }
@@ -193,7 +225,9 @@ export default function FaceEnrollClient() {
           {/* Text */}
           <div style={{ textAlign: 'center' }}>
             {state === 'loading' && (
-              <p style={{ color: '#4A6A4A', fontSize: 15, margin: 0 }}>Preparing camera…</p>
+              <p style={{ color: '#4A6A4A', fontSize: 15, margin: 0 }}>
+                {modelsLoaded ? 'Starting camera…' : `Loading ${MODEL_STEPS[loadStep]}…`}
+              </p>
             )}
             {state === 'ready' && (
               <>

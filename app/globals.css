@@ -27,8 +27,8 @@
 @layer utilities {
   .text-balance { text-wrap: balance; }
 
-  /* Mobile phone frame — 390px centred on desktop */
+  /* Mobile phone frame — 390px centred on desktop, full viewport height so bottom nav stays fixed */
   .phone-frame {
-    @apply max-w-mobile mx-auto relative min-h-screen overflow-x-hidden;
+    @apply max-w-mobile mx-auto relative h-dvh overflow-hidden;
   }
 }

@@ -60,6 +60,16 @@ export const Users: CollectionConfig = {
       ],
     },
     {
+      name: 'level',
+      type: 'select',
+      options: [
+        { label: 'Beginner',     value: 'beginner'     },
+        { label: 'Intermediate', value: 'intermediate' },
+        { label: 'Elite',        value: 'elite'        },
+      ],
+      admin: { position: 'sidebar' },
+    },
+    {
       name: 'clanId',
       type: 'relationship',
       relationTo: 'clans',
