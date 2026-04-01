@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation'
 
 type Format = '300' | '720' | '1440'
 
-const FORMATS: Record<Format, { label: string; ends: number; arrows: number; max: number; distance: number }> = {
-  '300':  { label: '300 Round',  ends: 10, arrows: 3, max: 300,  distance: 18 },
-  '720':  { label: '720 Round',  ends: 12, arrows: 6, max: 720,  distance: 30 },
-  '1440': { label: '1440 Round', ends: 24, arrows: 6, max: 1440, distance: 90 },
+const FORMATS: Record<Format, { label: string; ends: number; arrows: number; max: number }> = {
+  '300':  { label: '300 Round',  ends: 10, arrows: 3, max: 300  },
+  '720':  { label: '720 Round',  ends: 12, arrows: 6, max: 720  },
+  '1440': { label: '1440 Round', ends: 24, arrows: 6, max: 1440 },
 }
+
+const DISTANCES = [18, 25, 30, 40, 50, 60, 70, 90]
 
 // Arrow value type: 'X' counts as 10 (gold), 'M' counts as 0
 type ArrowVal = 'X' | 'M' | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
@@ -48,14 +50,18 @@ function keyColour(v: ArrowVal | '←' | 'Next End'): string {
 
 type Phase = 'setup' | 'entry'
 
-type Props = { archerPayloadId: string }
+type Props = { archerPayloadId: string; level?: string }
 
-export default function ScoreEntryClient({ archerPayloadId }: Props) {
+export default function ScoreEntryClient({ archerPayloadId, level = 'beginner' }: Props) {
   const router = useRouter()
 
+  const isAdvanced = level === 'intermediate' || level === 'elite'
+  const availableFormats = (Object.keys(FORMATS) as Format[]).filter(f => !(f === '300' && isAdvanced))
+
   const [phase, setPhase] = useState<Phase>('setup')
-  const [format, setFormat] = useState<Format>('720')
+  const [format, setFormat] = useState<Format>(isAdvanced ? '720' : '300')
   const [roundType, setRoundType] = useState<'training' | 'competition'>('training')
+  const [distance, setDistance] = useState<number | null>(null)
 
   // Grid: ends × arrows, each cell is ArrowVal or null (unfilled)
   const [grid, setGrid] = useState<Array<Array<ArrowVal | null>>>([])
@@ -67,6 +73,7 @@ export default function ScoreEntryClient({ archerPayloadId }: Props) {
   const fmt = FORMATS[format]
 
   function startEntry() {
+    if (!distance) return
     setGrid(Array.from({ length: fmt.ends }, () => Array(fmt.arrows).fill(null)))
     setActiveEnd(0)
     setPhase('entry')
@@ -130,6 +137,7 @@ export default function ScoreEntryClient({ archerPayloadId }: Props) {
           scoringFormat: format,
           points: grandTotal,
           maxPoints: fmt.max,
+          distance,
           roundScores: grid.map(end => end.map(v => v !== null ? toNumeric(v) : 0)),
           date: new Date().toISOString(),
         }),
@@ -181,24 +189,44 @@ export default function ScoreEntryClient({ archerPayloadId }: Props) {
         <div>
           <p className="font-body text-[13px] font-semibold text-opac-ink mb-2">Scoring Format</p>
           <div className="flex flex-col gap-2">
-            {(Object.entries(FORMATS) as [Format, typeof FORMATS[Format]][]).map(([key, f]) => (
-              <button key={key} type="button" onClick={() => setFormat(key)}
-                className={`w-full h-14 rounded-[12px] border font-body text-[14px] font-semibold flex items-center justify-between px-4 transition-all ${
-                  format === key
+            {availableFormats.map(key => {
+              const f = FORMATS[key]
+              return (
+                <button key={key} type="button" onClick={() => setFormat(key)}
+                  className={`w-full h-14 rounded-[12px] border font-body text-[14px] font-semibold flex items-center justify-between px-4 transition-all ${
+                    format === key
+                      ? 'bg-opac-green text-white border-opac-green'
+                      : 'bg-white text-opac-ink border-opac-border'
+                  }`}>
+                  <span>{f.label}</span>
+                  <span className={`text-[12px] font-normal ${format === key ? 'text-[rgba(255,255,255,0.7)]' : 'text-opac-ink-30'}`}>
+                    {f.ends} ends × {f.arrows} arrows
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Distance */}
+        <div>
+          <p className="font-body text-[13px] font-semibold text-opac-ink mb-2">Distance</p>
+          <div className="flex flex-wrap gap-2">
+            {DISTANCES.map(d => (
+              <button key={d} type="button" onClick={() => setDistance(d)}
+                className={`h-10 px-4 rounded-[10px] border font-body text-[14px] font-semibold transition-all ${
+                  distance === d
                     ? 'bg-opac-green text-white border-opac-green'
                     : 'bg-white text-opac-ink border-opac-border'
                 }`}>
-                <span>{f.label}</span>
-                <span className={`text-[12px] font-normal ${format === key ? 'text-[rgba(255,255,255,0.7)]' : 'text-opac-ink-30'}`}>
-                  {f.ends} ends × {f.arrows} arrows · {f.distance}m
-                </span>
+                {d}m
               </button>
             ))}
           </div>
         </div>
 
-        <button type="button" onClick={startEntry}
-          className="w-full h-14 rounded-[12px] bg-opac-green text-white font-body text-[15px] font-semibold mt-2">
+        <button type="button" onClick={startEntry} disabled={!distance}
+          className="w-full h-14 rounded-[12px] bg-opac-green text-white font-body text-[15px] font-semibold mt-2 disabled:opacity-40">
           Start Scoring →
         </button>
       </div>
@@ -219,7 +247,7 @@ export default function ScoreEntryClient({ archerPayloadId }: Props) {
 
       {/* ── Top stats bar ───────────────────────────────────────────── */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-[#2a2a2a]">
-        <span className="font-body text-[13px] text-[#9ca3af]">Distance: {fmt.distance}m</span>
+        <span className="font-body text-[13px] text-[#9ca3af]">Distance: {distance}m</span>
         <span className="flex-1" />
         <span className="bg-yellow-400 text-yellow-900 font-bold text-[12px] px-3 py-1 rounded-full">
           Golds: {golds}

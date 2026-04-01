@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Menu,
   X,
+  ArrowLeft,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -30,7 +31,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
   const pathname = usePathname()
 
   const navContent = (
-    <nav className="flex flex-col gap-1 px-3 mt-2">
+    <nav className="flex flex-col gap-1 px-3 mt-2 flex-1">
       {NAV_ITEMS.map(({ href, label, Icon }) => {
         const active = pathname.startsWith(href)
         return (
@@ -49,13 +50,26 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
           </Link>
         )
       })}
+      {/* Divider + back links */}
+      <div className="mt-auto pt-4 border-t border-[rgba(255,255,255,0.12)] flex flex-col gap-1">
+        <Link href="/dashboard" onClick={() => setOpen(false)}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-[rgba(255,255,255,0.55)] hover:bg-[rgba(255,255,255,0.1)] hover:text-white transition-colors">
+          <ArrowLeft size={16} strokeWidth={1.8} />
+          <span className="font-body text-[13px]">Archer view</span>
+        </Link>
+        <Link href="/coach/dashboard" onClick={() => setOpen(false)}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-[rgba(255,255,255,0.55)] hover:bg-[rgba(255,255,255,0.1)] hover:text-white transition-colors">
+          <ArrowLeft size={16} strokeWidth={1.8} />
+          <span className="font-body text-[13px]">Coach view</span>
+        </Link>
+      </div>
     </nav>
   )
 
   return (
     <div className="phone-frame flex h-full">
       {/* ── Desktop sidebar (md+) ─────────────────────────────────── */}
-      <div className="hidden md:flex w-[220px] flex-shrink-0 bg-opac-green-dark flex-col py-6">
+      <div className="hidden md:flex w-[220px] flex-shrink-0 bg-opac-green-dark flex-col py-6 h-full">
         <div className="px-5 mb-4">
           <p className="font-display text-[20px] text-white">OPAC</p>
           <p className="font-body text-[12px] text-[rgba(255,255,255,0.5)] mt-0.5">Admin Panel</p>

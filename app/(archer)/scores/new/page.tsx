@@ -14,5 +14,5 @@ export default async function ScoreNewPage() {
   const user = await payload.findByID({ collection: 'users', id: userId }).catch(() => null)
   if (!user) redirect('/login')
 
-  return <ScoreEntryClient archerPayloadId={String(user.id)} />
+  return <ScoreEntryClient archerPayloadId={String(user.id)} level={(user.level as string) ?? 'beginner'} />
 }

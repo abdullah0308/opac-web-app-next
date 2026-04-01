@@ -50,12 +50,14 @@ export default function FaceEnrollClient() {
           faceapi.nets.faceLandmark68TinyNet,
           faceapi.nets.faceRecognitionNet,
         ]
+        // Timeouts: recognition model is ~6 MB so gets 90 s; others 30 s
+        const timeouts = [30000, 30000, 90000]
         for (let i = 0; i < nets.length; i++) {
           if (cancelled) return
           setLoadStep(i)
           await Promise.race([
             nets[i].loadFromUri(CDN),
-            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 30000)),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), timeouts[i])),
           ])
         }
         if (cancelled) return

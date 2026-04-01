@@ -125,12 +125,13 @@ export default function FaceScannerClient() {
           faceapi.nets.faceLandmark68TinyNet,
           faceapi.nets.faceRecognitionNet,
         ]
+        const timeouts = [30000, 30000, 90000]
         for (let i = 0; i < nets.length; i++) {
           if (cancelled) return
           setLoadStep(i)
           await Promise.race([
             nets[i].loadFromUri(CDN),
-            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 30000)),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), timeouts[i])),
           ])
         }
 
