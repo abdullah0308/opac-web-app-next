@@ -14,4 +14,5 @@ export { RoleModeSwitch } from './RoleModeSwitch';
 export { AdminAccessButton } from './AdminAccess';
 export { OPACLogoDark, OPACLogoLight, OPACLogoSmall, OPACLogoLarge } from './OPACLogo';
 export { RoleSync } from './RoleSync';
+export { LogoutButton } from './LogoutButton';
 export * from './tokens';

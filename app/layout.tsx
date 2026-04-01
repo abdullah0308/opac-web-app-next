@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, DM_Serif_Display, JetBrains_Mono } from "next/font/google";
 import { RoleProvider } from "@/contexts/RoleContext";
+import { SWRegister } from "@/components/ui/opac/SWRegister";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -53,6 +54,7 @@ export default function RootLayout({
     >
       <body className="font-body bg-opac-bg antialiased">
         <RoleProvider>{children}</RoleProvider>
+        <SWRegister />
       </body>
     </html>
   );

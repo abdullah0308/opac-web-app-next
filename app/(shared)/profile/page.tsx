@@ -2,7 +2,7 @@ import { getCurrentUserId } from '@/lib/auth'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
-import { ScreenHeader, RoleChip, RoleModeSwitch, AdminAccessButton } from '@/components/ui/opac'
+import { ScreenHeader, RoleChip, RoleModeSwitch, AdminAccessButton, LogoutButton } from '@/components/ui/opac'
 
 export const metadata = { title: 'Profile — OPAC' }
 
@@ -78,6 +78,7 @@ export default async function ProfilePage() {
             </div>
           ))}
         </div>
+        <LogoutButton />
       </div>
     </>
   )
