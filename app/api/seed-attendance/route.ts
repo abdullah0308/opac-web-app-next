@@ -94,8 +94,8 @@ export async function GET() {
           collection: 'attendance',
           where: {
             and: [
-              { archer: { equals: archPayloadId } },
-              { session: { equals: sessionId } },
+              { archer: { equals: String(archPayloadId) } },
+              { session: { equals: String(sessionId) } },
             ],
           },
           limit: 1,
@@ -104,8 +104,8 @@ export async function GET() {
         await payload.create({
           collection: 'attendance',
           data: {
-            archer: String(archPayloadId),
-            session: String(sessionId),
+            archer: archPayloadId as string,
+            session: sessionId as string,
             method: 'qr',
             status: 'present',
             timestamp: `${date}T08:30:00.000Z`,
@@ -132,7 +132,7 @@ export async function GET() {
         await payload.create({
           collection: 'scores',
           data: {
-            archer: String(archPayloadId),
+            archer: archPayloadId as string,
             roundType: 'training',
             scoringFormat: '720',
             points: scores[i],
