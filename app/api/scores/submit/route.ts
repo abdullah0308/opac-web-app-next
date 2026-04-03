@@ -19,8 +19,9 @@ export async function POST(req: NextRequest) {
 
     const score = await payload.create({
       collection: 'scores',
+      overrideAccess: true,
       data: {
-        archer: userId,
+        archer: Number(userId),
         roundType,
         scoringFormat,
         points,

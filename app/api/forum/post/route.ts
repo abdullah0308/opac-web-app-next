@@ -17,8 +17,9 @@ export async function POST(req: NextRequest) {
 
     const post = await payload.create({
       collection: 'forum-posts',
+      overrideAccess: true,
       data: {
-        author: userId,
+        author: Number(userId),
         title: title.trim(),
         body: body.trim(),
       },

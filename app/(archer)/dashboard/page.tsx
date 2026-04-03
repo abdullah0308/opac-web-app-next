@@ -93,6 +93,7 @@ export default async function DashboardPage() {
 
   const displayName = (user.name as string) || 'Archer'
   const initials = displayName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+  const avatarUrl = user.avatarUrl as string | undefined
   const archerId = (user.archerId as string | undefined) ?? ''
   const latestMsg = messagesResult.docs[0]
 
@@ -102,18 +103,23 @@ export default async function DashboardPage() {
     <>
       {/* Header */}
       <div className="bg-white border-b border-opac-border px-5 py-3 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
-          <span className="font-display text-[14px] text-opac-green">{initials}</span>
+        <div className="w-10 h-10 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0 overflow-hidden">
+          {avatarUrl
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+            : <span className="font-display text-[14px] text-opac-green">{initials}</span>
+          }
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-body text-[13px] text-opac-ink-60">{getGreeting()},</p>
           <p className="font-display text-[20px] text-opac-ink leading-tight truncate">{displayName}</p>
         </div>
-        <Link href="/profile" className="w-9 h-9 rounded-[10px] bg-opac-surface flex items-center justify-center flex-shrink-0">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <circle cx="10" cy="8" r="3.5" stroke="#5C5C58" strokeWidth="1.5"/>
-            <path d="M3 18C3 14.7 6.1 12 10 12S17 14.7 17 18" stroke="#5C5C58" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
+        <Link href="/profile" className="w-9 h-9 rounded-full overflow-hidden bg-opac-green-light flex items-center justify-center flex-shrink-0">
+          {avatarUrl
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+            : <span className="font-display text-[12px] text-opac-green">{initials}</span>
+          }
         </Link>
       </div>
 

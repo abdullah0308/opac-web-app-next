@@ -17,9 +17,10 @@ export async function POST(req: NextRequest) {
 
     const message = await payload.create({
       collection: 'messages',
+      overrideAccess: true,
       data: {
-        from: userId,
-        to: toId,
+        from: Number(userId),
+        to: Number(toId),
         body: body.trim(),
       },
     })
