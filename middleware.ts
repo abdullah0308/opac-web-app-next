@@ -12,6 +12,7 @@ const PUBLIC_PREFIXES = [
   '/api/seed',
   '/api/seed-update',
   '/api/seed-attendance',
+  '/api/seed-payments',
   '/setup/profile',
   // Payload CMS panel handles its own authentication
   '/admin',

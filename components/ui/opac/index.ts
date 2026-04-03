@@ -15,4 +15,5 @@ export { AdminAccessButton } from './AdminAccess';
 export { OPACLogoDark, OPACLogoLight, OPACLogoSmall, OPACLogoLarge } from './OPACLogo';
 export { RoleSync } from './RoleSync';
 export { LogoutButton } from './LogoutButton';
+export { AvatarUpload } from './AvatarUpload';
 export * from './tokens';

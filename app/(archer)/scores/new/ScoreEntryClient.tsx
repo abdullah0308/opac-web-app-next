@@ -128,23 +128,21 @@ export default function ScoreEntryClient({ archerPayloadId, level = 'beginner' }
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/payload/scores', {
+      const res = await fetch('/api/scores/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          archer: archerPayloadId,
           roundType,
           scoringFormat: format,
           points: grandTotal,
           maxPoints: fmt.max,
-          distance,
           roundScores: grid.map(end => end.map(v => v !== null ? toNumeric(v) : 0)),
           date: new Date().toISOString(),
         }),
       })
       if (!res.ok) {
         const body = await res.json()
-        throw new Error(body?.errors?.[0]?.message ?? 'Failed to save score')
+        throw new Error(body?.error ?? body?.errors?.[0]?.message ?? 'Failed to save score')
       }
       router.push('/scores')
       router.refresh()

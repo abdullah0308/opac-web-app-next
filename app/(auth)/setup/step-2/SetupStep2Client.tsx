@@ -47,7 +47,6 @@ export default function SetupStep2Client() {
   const [archerId,     setArcherId]     = useState('')
   const [bowType,      setBowType]      = useState<BowType>('recurve')
   const [gender,       setGender]       = useState<Gender>('male')
-  const [faceOptIn,    setFaceOptIn]    = useState(true)
   const [termsChecked, setTermsChecked] = useState(false)
   const [loading,      setLoading]      = useState(false)
   const [error,        setError]        = useState('')
@@ -124,20 +123,6 @@ export default function SetupStep2Client() {
         <div>
           <p className="font-body text-[13px] font-semibold text-opac-ink mb-2.5">Gender</p>
           <PillToggle options={[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }]} value={gender} onChange={setGender} />
-        </div>
-
-        {/* Face opt-in */}
-        <div className="rounded-[16px] border border-opac-border p-4 bg-white">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <p className="font-body text-[14px] font-semibold text-opac-ink mb-1">Face ID attendance</p>
-              <p className="font-body text-[13px] text-opac-ink-60">Scan your face to check in automatically.</p>
-            </div>
-            <button type="button" onClick={() => setFaceOptIn(!faceOptIn)}
-              className={`flex-shrink-0 w-[48px] h-[28px] rounded-full transition-colors duration-200 relative ${faceOptIn ? 'bg-opac-green' : 'bg-opac-border'}`}>
-              <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${faceOptIn ? 'left-[24px]' : 'left-1'}`} />
-            </button>
-          </div>
         </div>
 
         <label className="flex items-start gap-3 cursor-pointer">

@@ -3,7 +3,6 @@ import { getCurrentUserId } from '@/lib/auth'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
-import { ScreenHeader } from '@/components/ui/opac'
 import { QRImage } from '@/components/ui/opac/QRImage'
 
 export const metadata = { title: 'Dashboard — OPAC' }
@@ -20,86 +19,88 @@ export default async function DashboardPage() {
   if (!userId) redirect('/login')
 
   const payload = await getPayload({ config })
-
-  // Load archer profile
   const user = await payload.findByID({ collection: 'users', id: userId }).catch(() => null)
   if (!user) redirect('/login')
 
-  // Today's attendance
   const today = new Date().toISOString().split('T')[0]
-  const attendanceResult = await payload.find({
-    collection: 'attendance',
-    where: {
-      and: [
-        { archer: { equals: user.id } },
-        { timestamp: { greater_than_equal: `${today}T00:00:00.000Z` } },
-      ],
-    },
-    limit: 1,
-  })
+
+  const [
+    attendanceResult,
+    allArchers,
+    allScores,
+    myScores,
+    paymentsResult,
+    messagesResult,
+  ] = await Promise.all([
+    payload.find({
+      collection: 'attendance',
+      where: { and: [{ archer: { equals: user.id } }, { timestamp: { greater_than_equal: `${today}T00:00:00.000Z` } }] },
+      limit: 1,
+    }),
+    payload.find({
+      collection: 'users',
+      where: { and: [{ active: { equals: true } }, { roles: { contains: 'archer' } }] },
+      limit: 50,
+    }),
+    payload.find({ collection: 'scores', sort: '-points', limit: 200 }),
+    payload.find({ collection: 'scores', where: { archer: { equals: user.id } }, sort: '-date', limit: 30 }),
+    payload.find({
+      collection: 'payments',
+      where: { and: [{ archer: { equals: user.id } }, { status: { in: ['overdue', 'due'] } }] },
+    }),
+    payload.find({ collection: 'messages', where: { to: { equals: user.id } }, sort: '-createdAt', limit: 1 }),
+  ])
+
   const todayAttendance = attendanceResult.docs[0]
 
-  // Pathway progress
-  const archerPathwayResult = await payload.find({
-    collection: 'archer-pathways',
-    where: { archer: { equals: user.id } },
-    limit: 1,
-    sort: '-updatedAt',
-  })
-  const archerPathway = archerPathwayResult.docs[0] as {
-    pathwayStage?: { stageName?: string } | string | null
-    completedRequirements?: { completed?: boolean }[]
-  } | undefined
+  // Compute leaderboard rank
+  type ScoreDoc = { archer: string | { id: string | number } | null; points?: number }
+  const bestByArcher = new Map<string, number>()
+  for (const s of allScores.docs as unknown as ScoreDoc[]) {
+    const aid = typeof s.archer === 'object' && s.archer !== null ? String((s.archer as { id: string | number }).id) : String(s.archer)
+    if (!bestByArcher.has(aid) || (s.points ?? 0) > (bestByArcher.get(aid) ?? 0)) {
+      bestByArcher.set(aid, s.points ?? 0)
+    }
+  }
+  const myBest = bestByArcher.get(String(user.id)) ?? 0
+  const rank = Array.from(bestByArcher.values()).filter(v => v > myBest).length + 1
 
-  // Outstanding payments
-  const paymentsResult = await payload.find({
-    collection: 'payments',
-    where: {
-      and: [
-        { archer: { equals: user.id } },
-        { status: { in: ['overdue', 'due'] } },
-      ],
-    },
-  })
-  type PaymentDoc = { amount?: number }
-  const overdueTotal = (paymentsResult.docs as unknown as PaymentDoc[]).reduce(
-    (sum, p) => sum + (p.amount ?? 0), 0
-  )
+  // My scores stats
+  type MyScore = { points?: number; roundScores?: number[][] | null; date?: string }
+  const myScoreDocs = myScores.docs as unknown as MyScore[]
+  const totalPoints = myScoreDocs.reduce((s, r) => s + (r.points ?? 0), 0)
+  const bestScore = myScoreDocs.length ? Math.max(...myScoreDocs.map(r => r.points ?? 0)) : 0
+  const totalArrows = myScoreDocs.reduce((s, r) => {
+    const rounds = r.roundScores ?? []
+    return s + rounds.flat().length
+  }, 0)
 
-  // Latest message
-  const messagesResult = await payload.find({
-    collection: 'messages',
-    where: { to: { equals: user.id } },
-    sort: '-createdAt',
-    limit: 1,
-  })
-  const latestMsg = messagesResult.docs[0]
+  // Last 5 scores for sparkline
+  const sparkScores = myScoreDocs.slice(0, 5).map(s => s.points ?? 0).reverse()
+  const sparkMax = sparkScores.length ? Math.max(...sparkScores, 1) : 1
+  const sparkMin = sparkScores.length ? Math.min(...sparkScores) : 0
+  const sparkRange = sparkMax - sparkMin || 1
+
+  // Payments
+  type PaymentDoc = { amount?: number; status?: string; description?: string; dueDate?: string }
+  const pendingPayments = paymentsResult.docs as unknown as PaymentDoc[]
+  const overdueTotal = pendingPayments.reduce((s, p) => s + (p.amount ?? 0), 0)
+
+  // Clan
+  const clanName = typeof user.clanId === 'object' && user.clanId !== null
+    ? (user.clanId as { name?: string }).name ?? '—'
+    : '—'
 
   const displayName = (user.name as string) || 'Archer'
-  const initials = displayName
-    .split(' ')
-    .map((n: string) => n[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
-
-  const pathwayName =
-    archerPathway && typeof archerPathway.pathwayStage === 'object' && archerPathway.pathwayStage !== null
-      ? (archerPathway.pathwayStage as { stageName?: string }).stageName
-      : null
-  const completedCount = archerPathway?.completedRequirements?.filter((r) => r.completed).length ?? 0
-  const totalCount = archerPathway?.completedRequirements?.length ?? 0
-  const pathwayProgress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
-
-  const todayFormatted = new Date().toLocaleDateString('en-GB', {
-    weekday: 'long', day: 'numeric', month: 'long',
-  })
-
+  const initials = displayName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const archerId = (user.archerId as string | undefined) ?? ''
+  const latestMsg = messagesResult.docs[0]
+
+  const todayFormatted = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
 
   return (
     <>
-      {/* Dashboard header */}
+      {/* Header */}
       <div className="bg-white border-b border-opac-border px-5 py-3 flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
           <span className="font-display text-[14px] text-opac-green">{initials}</span>
@@ -117,7 +118,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="flex flex-col gap-3 p-5">
-        {/* Today's status */}
+        {/* Today + QR */}
         <div className="bg-white rounded-[20px] p-5 border border-opac-border shadow-card relative overflow-hidden">
           <div className="absolute right-[-10px] bottom-[-10px] opacity-[0.06]">
             <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
@@ -138,26 +139,77 @@ export default async function DashboardPage() {
                 <span className="font-body text-[13px] font-bold text-[#16A34A]">Present</span>
               </div>
             ) : (
-              /* Personal QR code for check-in at the range */
               <QRImage archerId={archerId} />
             )}
           </div>
         </div>
 
-        {/* Pathway card */}
-        {archerPathway && (
-          <Link href="/pathway" className="bg-white rounded-[16px] p-[18px] border border-opac-border border-l-[4px] border-l-opac-gold shadow-card block">
-            <div className="flex justify-between items-start mb-2.5">
-              <div>
-                <p className="font-body text-[11px] font-semibold text-opac-gold uppercase tracking-[0.07em] mb-1">Pathway</p>
-                <p className="font-display text-[18px] text-opac-ink">{pathwayName ?? 'In Progress'}</p>
-              </div>
-              <div className="bg-opac-gold-light rounded-[8px] px-2.5 py-1 border border-[#D4A01730]">
-                <span className="font-mono text-[12px] font-semibold text-opac-gold">{pathwayProgress}%</span>
-              </div>
+        {/* Stats row: Rank / Best / Total */}
+        <div className="grid grid-cols-3 gap-2">
+          <Link href="/leaderboard" className="bg-white rounded-[16px] p-3.5 border border-opac-border text-center">
+            <p className="font-mono text-[26px] font-semibold text-opac-gold leading-none">#{rank}</p>
+            <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Rank</p>
+          </Link>
+          <Link href="/scores" className="bg-white rounded-[16px] p-3.5 border border-opac-border text-center">
+            <p className="font-mono text-[26px] font-semibold text-opac-green leading-none">{bestScore}</p>
+            <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Best score</p>
+          </Link>
+          <div className="bg-white rounded-[16px] p-3.5 border border-opac-border text-center">
+            <p className="font-mono text-[26px] font-semibold text-opac-ink leading-none">{totalArrows}</p>
+            <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Arrows</p>
+          </div>
+        </div>
+
+        {/* Clan + Level */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-white rounded-[16px] px-4 py-3 border border-opac-border flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2L10 5.5H14L11 8L12.5 12L8 9.5L3.5 12L5 8L2 5.5H6L8 2Z" stroke="#2E7D4F" strokeWidth="1.4" strokeLinejoin="round" />
+            </svg>
+            <div>
+              <p className="font-body text-[11px] text-opac-ink-30">Clan</p>
+              <p className="font-body text-[13px] font-semibold text-opac-ink">{clanName}</p>
             </div>
-            <div className="h-1.5 rounded-full bg-opac-surface overflow-hidden mb-1.5">
-              <div className="h-full rounded-full bg-opac-green" style={{ width: `${pathwayProgress}%` }} />
+          </div>
+          <div className="bg-white rounded-[16px] px-4 py-3 border border-opac-border flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2C5.2 2 3 4.2 3 7" stroke="#2E7D4F" strokeWidth="1.4" strokeLinecap="round"/>
+              <path d="M8 2C10.8 2 13 4.2 13 7" stroke="#2E7D4F" strokeWidth="1.4" strokeLinecap="round"/>
+              <path d="M8 2L13 7L8 12L3 7Z" stroke="#2E7D4F" strokeWidth="1.4" strokeLinejoin="round"/>
+              <line x1="5.5" y1="7" x2="10.5" y2="7" stroke="#2E7D4F" strokeWidth="1.4" strokeLinecap="round" strokeDasharray="1.5 1.5"/>
+            </svg>
+            <div>
+              <p className="font-body text-[11px] text-opac-ink-30">Level</p>
+              <p className="font-body text-[13px] font-semibold text-opac-ink capitalize">{(user.level as string) ?? 'beginner'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Score progress sparkline */}
+        {sparkScores.length > 1 && (
+          <Link href="/scores" className="bg-white rounded-[16px] p-4 border border-opac-border">
+            <div className="flex items-center justify-between mb-3">
+              <p className="font-body text-[13px] font-semibold text-opac-ink">Score Progress</p>
+              <span className="font-body text-[11px] text-opac-ink-30">Last {sparkScores.length} rounds</span>
+            </div>
+            <div className="flex items-end gap-1.5 h-10">
+              {sparkScores.map((s, i) => {
+                const pct = sparkRange > 0 ? ((s - sparkMin) / sparkRange) : 0.5
+                const h = Math.max(4, Math.round(pct * 32))
+                const isLast = i === sparkScores.length - 1
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center justify-end gap-0.5">
+                    <div
+                      className={`w-full rounded-t-[3px] ${isLast ? 'bg-opac-green' : 'bg-opac-green-light'}`}
+                      style={{ height: h }}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+            <div className="flex justify-between mt-1">
+              <span className="font-mono text-[10px] text-opac-ink-30">{sparkScores[0]}</span>
+              <span className="font-mono text-[10px] font-semibold text-opac-green">{sparkScores[sparkScores.length - 1]}</span>
             </div>
           </Link>
         )}
@@ -169,20 +221,26 @@ export default async function DashboardPage() {
               <span className="text-[18px]">⚠️</span>
               <div>
                 <p className="font-body text-[14px] font-semibold text-opac-gold">Outstanding balance</p>
-                <p className="font-body text-[13px] text-opac-ink-60">Rs {overdueTotal.toLocaleString()}</p>
+                <p className="font-body text-[12px] text-opac-ink-60">
+                  {pendingPayments.map(p => p.description).slice(0, 2).join(', ')}
+                </p>
               </div>
             </div>
-            <span className="font-body text-[13px] font-semibold text-opac-green">View →</span>
+            <span className="font-body text-[13px] font-semibold text-opac-green flex-shrink-0">Rs {overdueTotal.toLocaleString()} →</span>
           </Link>
         )}
 
         {/* Latest message */}
         {latestMsg && (
-          <div className="bg-white rounded-[16px] p-3.5 border border-opac-border">
-            <p className="font-body text-[11px] font-semibold text-opac-ink-30 uppercase tracking-[0.08em] mb-2.5">Latest Message</p>
+          <Link href="/messages" className="bg-white rounded-[16px] p-3.5 border border-opac-border">
+            <p className="font-body text-[11px] font-semibold text-opac-ink-30 uppercase tracking-[0.08em] mb-2.5">Message from Coach</p>
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-full bg-[#FEF3C7] flex items-center justify-center flex-shrink-0">
-                <span className="font-display text-[12px] text-[#92400E]">C</span>
+                <span className="font-display text-[12px] text-[#92400E]">
+                  {String(typeof latestMsg.from === 'object' && latestMsg.from !== null
+                    ? (latestMsg.from as { name?: string }).name ?? 'C'
+                    : 'C').charAt(0)}
+                </span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between mb-0.5">
@@ -198,7 +256,7 @@ export default async function DashboardPage() {
                 <p className="font-body text-[13px] text-opac-ink-60 truncate">{latestMsg.body as string}</p>
               </div>
             </div>
-          </div>
+          </Link>
         )}
 
         {/* Quick actions */}

@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
 import { AddArcherClient } from './AddArcherClient'
+import { EditArcherClient } from './EditArcherClient'
 
 export const metadata = { title: 'User Management — OPAC Admin' }
 
@@ -15,7 +16,11 @@ export default async function AdminUsersPage() {
     payload.find({ collection: 'users', sort: 'name', limit: 100 }),
     payload.find({ collection: 'clans', sort: 'name', limit: 20 }),
   ])
-  type UserDoc = { id: string | number; name?: string; email?: string; roles?: string[]; active?: boolean; bowType?: string }
+  type UserDoc = {
+    id: string | number; name?: string; email?: string; roles?: string[]
+    active?: boolean; bowType?: string; archerId?: string; gender?: string
+    level?: string; clanId?: string | { id: string | number; name?: string } | null
+  }
   const users = usersResult.docs as unknown as UserDoc[]
   const clans = clansResult.docs.map(c => ({ id: String(c.id), name: c.name as string }))
 
@@ -27,18 +32,6 @@ export default async function AdminUsersPage() {
           <p className="font-body text-[13px] text-opac-ink-60">{users.length} total</p>
         </div>
         <AddArcherClient clans={clans} />
-      </div>
-
-      {/* Filter row */}
-      <div className="flex gap-2">
-        {['All', 'Archers', 'Coaches', 'Inactive'].map((tab, i) => (
-          <div key={tab}
-            className={`flex-shrink-0 px-3.5 py-1.5 rounded-full border text-[13px] font-body font-semibold cursor-pointer ${
-              i === 0 ? 'bg-opac-green text-white border-opac-green' : 'bg-white text-opac-ink-60 border-opac-border'
-            }`}>
-            {tab}
-          </div>
-        ))}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -53,11 +46,13 @@ export default async function AdminUsersPage() {
                 <span className={`font-display text-[13px] ${user.active ? 'text-opac-green' : 'text-opac-ink-30'}`}>{initials}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-body text-[14px] font-semibold text-opac-ink">{name}</p>
-                <p className="font-body text-[12px] text-opac-ink-60">{user.email}</p>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <div className="flex gap-1">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <p className="font-body text-[14px] font-semibold text-opac-ink">{name}</p>
+                  {user.archerId && (
+                    <span className="font-mono text-[11px] text-opac-ink-30">{user.archerId}</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
                   {roles.map((role) => (
                     <span key={role} className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${
                       role === 'admin' ? 'bg-[#FEE2E2] text-[#DC2626]' :
@@ -65,11 +60,26 @@ export default async function AdminUsersPage() {
                       'bg-opac-green-light text-opac-green'
                     }`}>{role}</span>
                   ))}
+                  {user.level && (
+                    <span className="text-[10px] font-semibold text-opac-ink-30 capitalize">{user.level}</span>
+                  )}
                 </div>
-                {!user.active && (
-                  <span className="text-[10px] font-semibold text-opac-ink-30">Inactive</span>
-                )}
               </div>
+              <EditArcherClient
+                archer={{
+                  id: String(user.id),
+                  name: user.name,
+                  archerId: user.archerId,
+                  email: user.email,
+                  bowType: user.bowType,
+                  gender: user.gender,
+                  level: user.level,
+                  roles: user.roles,
+                  active: user.active,
+                  clanId: user.clanId,
+                }}
+                clans={clans}
+              />
             </div>
           )
         })}

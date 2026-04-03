@@ -31,18 +31,28 @@ export default async function ArcherDetailPage({ params }: { params: Promise<{ i
   const scores = scoresResult.docs as unknown as ScoreDoc[]
 
   // Attendance rate (last 30 sessions)
-  const attResult = await payload.find({
-    collection: 'attendance',
-    where: {
-      and: [
-        { archer: { equals: id } },
-        { status: { equals: 'present' } },
-      ],
-    },
-    sort: '-timestamp',
-    limit: 30,
-  })
+  const [attResult, paymentsResult] = await Promise.all([
+    payload.find({
+      collection: 'attendance',
+      where: {
+        and: [
+          { archer: { equals: id } },
+          { status: { equals: 'present' } },
+        ],
+      },
+      sort: '-timestamp',
+      limit: 30,
+    }),
+    payload.find({
+      collection: 'payments',
+      where: { and: [{ archer: { equals: id } }, { status: { in: ['overdue', 'due'] } }] },
+      limit: 20,
+    }),
+  ])
   const presentCount = attResult.totalDocs
+  type PaymentDoc = { amount?: number; description?: string }
+  const pendingPayments = paymentsResult.docs as unknown as PaymentDoc[]
+  const overdueTotal = pendingPayments.reduce((s, p) => s + (p.amount ?? 0), 0)
 
   const name = (archer.name as string) || 'Archer'
   const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -50,6 +60,9 @@ export default async function ArcherDetailPage({ params }: { params: Promise<{ i
   const avg = scores.length > 0
     ? Math.round(scores.reduce((s, r) => s + (r.points ?? 0), 0) / scores.length)
     : 0
+  const clanName = typeof archer.clanId === 'object' && archer.clanId !== null
+    ? (archer.clanId as { name?: string }).name ?? '—'
+    : '—'
 
   return (
     <>
@@ -63,10 +76,23 @@ export default async function ArcherDetailPage({ params }: { params: Promise<{ i
           </div>
           <div>
             <p className="font-display text-[20px] text-opac-ink">{name}</p>
+            <p className="font-body text-[13px] text-opac-ink-30 font-mono">{archer.archerId as string ?? ''}</p>
             <p className="font-body text-[14px] text-opac-ink-60 capitalize">
               {archer.bowType as string ?? 'Recurve'} · {archer.gender as string ?? ''}
             </p>
             <p className="font-body text-[13px] text-opac-ink-60">{archer.email as string}</p>
+            <div className="flex gap-2 mt-1 flex-wrap">
+              {(archer.level as string) && (
+                <span className="font-body text-[11px] font-semibold text-opac-green bg-opac-green-light px-2 py-0.5 rounded-full capitalize">
+                  {archer.level as string}
+                </span>
+              )}
+              {clanName !== '—' && (
+                <span className="font-body text-[11px] font-semibold text-opac-ink-60 bg-opac-surface px-2 py-0.5 rounded-full">
+                  {clanName}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -85,6 +111,19 @@ export default async function ArcherDetailPage({ params }: { params: Promise<{ i
             <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Sessions</p>
           </div>
         </div>
+
+        {/* Outstanding payments */}
+        {overdueTotal > 0 && (
+          <div className="bg-[#FFFBEB] rounded-[12px] px-4 py-3 border border-[#FCD34D] flex items-center justify-between">
+            <div>
+              <p className="font-body text-[13px] font-semibold text-[#92400E]">Outstanding balance</p>
+              <p className="font-body text-[12px] text-opac-ink-60">
+                {pendingPayments.map(p => p.description).slice(0, 2).join(', ')}
+              </p>
+            </div>
+            <span className="font-body text-[13px] font-semibold text-[#92400E]">Rs {overdueTotal.toLocaleString()}</span>
+          </div>
+        )}
 
         {/* Score history */}
         {scores.length > 0 && (

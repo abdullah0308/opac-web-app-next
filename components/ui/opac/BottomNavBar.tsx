@@ -54,6 +54,26 @@ const BowIcon = ({ active }: { active: boolean }) => (
     <line x1="8" y1="12" x2="18" y2="12" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.8" strokeLinecap="round" strokeDasharray="2 2" />
   </svg>
 );
+const TrophyIcon = ({ active }: { active: boolean }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M8 21H16M12 17V21M7 4H5C4.44772 4 4 4.44772 4 5V7C4 9.20914 5.79086 11 8 11M17 4H19C19.5523 4 20 4.44772 20 5V7C20 9.20914 18.2091 11 16 11" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M7 4H17V11C17 14.3137 14.7614 17 12 17C9.23858 17 7 14.3137 7 11V4Z" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.8" strokeLinejoin="round" />
+  </svg>
+);
+const ScanIcon = ({ active }: { active: boolean }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M4 8V6C4 4.89543 4.89543 4 6 4H8M16 4H18C19.1046 4 20 4.89543 20 6V8M20 16V18C20 19.1046 19.1046 20 18 20H16M8 20H6C4.89543 20 4 19.1046 4 18V16" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.8" strokeLinecap="round" />
+    <rect x="7" y="7" width="4" height="4" rx="1" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.6" />
+    <rect x="13" y="7" width="4" height="4" rx="1" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.6" />
+    <rect x="7" y="13" width="4" height="4" rx="1" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.6" />
+    <path d="M13 15H17M15 13V17" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.6" strokeLinecap="round" />
+  </svg>
+);
+const MsgIcon = ({ active }: { active: boolean }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M8 10H16M8 14H13M7 4H17C18.1046 4 19 4.89543 19 6V14C19 15.1046 18.1046 16 17 16H13L9 20V16H7C5.89543 16 5 15.1046 5 14V6C5 4.89543 5.89543 4 7 4Z" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
 const WalletIcon = ({ active }: { active: boolean }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <rect x="2" y="6" width="20" height="14" rx="3" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.8" />
@@ -68,6 +88,7 @@ const archerNav = [
   { label: 'HOME',     href: '/dashboard',     icon: HomeIcon },
   { label: 'SCORES',   href: '/scores',         icon: TargetIcon },
   { label: 'ATTEND',   href: '/attendance',     icon: CalendarIcon },
+  { label: 'RANK',     href: '/leaderboard',    icon: TrophyIcon },
   { label: 'FORUM',    href: '/forum',          icon: ChatIcon },
   { label: 'PROFILE',  href: '/profile',        icon: UserIcon },
 ];
@@ -75,8 +96,9 @@ const archerNav = [
 const coachNav = [
   { label: 'DASH',     href: '/coach/dashboard',  icon: ChartIcon },
   { label: 'ARCHERS',  href: '/coach/archers',    icon: BowIcon },
-  { label: 'ATTEND',   href: '/coach/attendance', icon: CalendarIcon },
+  { label: 'SCAN',     href: '/scan/qr',          icon: ScanIcon },
   { label: 'FORUM',    href: '/forum',            icon: ChatIcon },
+  { label: 'MSGS',     href: '/coach/messages',   icon: MsgIcon },
   { label: 'PROFILE',  href: '/profile',          icon: UserIcon },
 ];
 

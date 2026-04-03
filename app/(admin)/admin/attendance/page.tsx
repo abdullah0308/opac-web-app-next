@@ -2,9 +2,9 @@ import { getCurrentUserId } from '@/lib/auth'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
-import AttendanceSettingsClient from './AttendanceSettingsClient'
+import AttendanceManagerClient from './AttendanceManagerClient'
 
-export const metadata = { title: 'Attendance Settings — OPAC Admin' }
+export const metadata = { title: 'Attendance — OPAC Admin' }
 
 export default async function AdminAttendancePage() {
   const userId = await getCurrentUserId()
@@ -12,61 +12,57 @@ export default async function AdminAttendancePage() {
 
   const payload = await getPayload({ config })
 
-  // Load active sessions
-  const sessionsResult = await payload.find({
-    collection: 'sessions',
-    where: { active: { equals: true } },
-    sort: 'date',
-    limit: 20,
-  })
-  const sessions = sessionsResult.docs
+  const [sessionsResult, usersResult] = await Promise.all([
+    payload.find({
+      collection: 'sessions',
+      sort: '-date',
+      limit: 30,
+    }),
+    payload.find({
+      collection: 'users',
+      where: { and: [{ active: { equals: true } }, { roles: { contains: 'archer' } }] },
+      limit: 100,
+    }),
+  ])
 
-  // Global settings for face recognition toggle
-  let faceEnabled = false
-  try {
-    const settings = await payload.findGlobal({ slug: 'global-settings' })
-    faceEnabled = settings?.faceRecognitionEnabled as boolean ?? false
-  } catch {
-    // global settings may not exist yet
+  type SessionDoc = { id: string | number; name?: string; date?: string; active?: boolean }
+  type ArcherDoc = { id: string | number; name?: string; archerId?: string }
+
+  const sessions = sessionsResult.docs as unknown as SessionDoc[]
+  const archers = usersResult.docs as unknown as ArcherDoc[]
+
+  // For each session, load attendance
+  const attendanceMap: Record<string, string[]> = {}
+  if (sessions.length > 0) {
+    const attendanceResult = await payload.find({
+      collection: 'attendance',
+      where: {
+        session: { in: sessions.map(s => String(s.id)) },
+      },
+      limit: 500,
+    })
+    for (const rec of attendanceResult.docs) {
+      const sid = typeof rec.session === 'object' && rec.session !== null
+        ? String((rec.session as { id?: string | number }).id)
+        : String(rec.session)
+      const aid = typeof rec.archer === 'object' && rec.archer !== null
+        ? String((rec.archer as { id?: string | number }).id)
+        : String(rec.archer)
+      if (!attendanceMap[sid]) attendanceMap[sid] = []
+      attendanceMap[sid].push(aid)
+    }
   }
 
   return (
-    <div className="p-6 flex flex-col gap-5">
-      <div>
-        <h1 className="font-display text-[24px] text-opac-ink">Attendance Settings</h1>
-      </div>
-
-      <AttendanceSettingsClient faceEnabled={faceEnabled} />
-
-      {/* Active sessions */}
-      <div>
-        <p className="font-body text-[11px] font-semibold text-opac-ink-30 uppercase tracking-[0.08em] mb-3">Active Sessions</p>
-        {sessions.length === 0 ? (
-          <div className="bg-white rounded-[16px] p-6 border border-opac-border text-center">
-            <p className="font-body text-[14px] text-opac-ink-60">No active sessions.</p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {sessions.map((session: { id: string | number; name?: string; date?: string; qrCode?: string; active?: boolean }) => (
-              <div key={String(session.id)} className="bg-white rounded-[14px] px-4 py-3.5 border border-opac-border flex items-center justify-between">
-                <div>
-                  <p className="font-body text-[14px] font-semibold text-opac-ink">{session.name ?? 'Session'}</p>
-                  {session.date && (
-                    <p className="font-body text-[12px] text-opac-ink-60">
-                      {new Date(session.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}
-                    </p>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  {session.qrCode && (
-                    <span className="font-body text-[11px] text-opac-green bg-opac-green-light px-2.5 py-0.5 rounded-full">QR Active</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    <AttendanceManagerClient
+      sessions={sessions.map(s => ({
+        id: String(s.id),
+        name: s.name ?? 'Session',
+        date: s.date ?? '',
+        active: s.active ?? false,
+        presentIds: attendanceMap[String(s.id)] ?? [],
+      }))}
+      archers={archers.map(a => ({ id: String(a.id), name: a.name ?? 'Archer', archerId: a.archerId ?? '' }))}
+    />
   )
 }

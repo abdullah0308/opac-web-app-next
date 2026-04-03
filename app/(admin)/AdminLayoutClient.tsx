@@ -11,6 +11,7 @@ import {
   Map,
   CalendarCheck,
   MessageSquare,
+  Mail,
   Menu,
   X,
   ArrowLeft,
@@ -18,12 +19,13 @@ import {
 
 const NAV_ITEMS = [
   { href: '/admin/dashboard',  label: 'Dashboard',  Icon: BarChart2     },
-  { href: '/admin/users',      label: 'Users',       Icon: Users         },
+  { href: '/admin/users',      label: 'Members',     Icon: Users         },
   { href: '/admin/payments',   label: 'Payments',    Icon: CreditCard    },
   { href: '/admin/clans',      label: 'Clans',       Icon: Shield        },
   { href: '/admin/pathways',   label: 'Pathways',    Icon: Map           },
   { href: '/admin/attendance', label: 'Attendance',  Icon: CalendarCheck },
   { href: '/admin/forum',      label: 'Forum',       Icon: MessageSquare },
+  { href: '/admin/messages',   label: 'Messages',    Icon: Mail          },
 ]
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {

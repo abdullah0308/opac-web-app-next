@@ -74,7 +74,7 @@ export default async function ScoresPage() {
               const pct = score.maxPoints ? Math.round(((score.points ?? 0) / score.maxPoints) * 100) : null
 
               return (
-                <div key={score.id} className="bg-white rounded-[14px] p-4 border border-opac-border flex items-center gap-3">
+                <Link key={score.id} href={`/scores/${score.id}`} className="bg-white rounded-[14px] p-4 border border-opac-border flex items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
                       <span className="font-mono text-[22px] font-semibold text-opac-green">{score.points ?? '—'}</span>
@@ -101,7 +101,7 @@ export default async function ScoresPage() {
                       {score.roundType ?? 'training'}
                     </span>
                   </div>
-                </div>
+                </Link>
               )
             })}
           </div>

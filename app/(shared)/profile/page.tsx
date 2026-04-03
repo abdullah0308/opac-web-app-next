@@ -2,7 +2,7 @@ import { getCurrentUserId } from '@/lib/auth'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
-import { ScreenHeader, RoleChip, RoleModeSwitch, AdminAccessButton, LogoutButton } from '@/components/ui/opac'
+import { ScreenHeader, RoleChip, RoleModeSwitch, AdminAccessButton, LogoutButton, AvatarUpload } from '@/components/ui/opac'
 
 export const metadata = { title: 'Profile — OPAC' }
 
@@ -16,7 +16,6 @@ export default async function ProfilePage() {
 
   const roles = (user.roles ?? []) as string[]
   const displayName = (user.name as string) || 'Archer'
-  const initials = displayName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const clanName =
     typeof user.clanId === 'object' && user.clanId !== null
       ? (user.clanId as { name?: string }).name ?? '—'
@@ -29,18 +28,7 @@ export default async function ProfilePage() {
       <div className="p-5 flex flex-col gap-4">
         {/* Avatar & name */}
         <div className="bg-white rounded-[20px] p-6 border border-opac-border flex flex-col items-center gap-3">
-          {user.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={user.avatarUrl as string}
-              alt={displayName}
-              className="w-20 h-20 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-20 h-20 rounded-full bg-opac-green-light flex items-center justify-center">
-              <span className="font-display text-[28px] text-opac-green">{initials}</span>
-            </div>
-          )}
+          <AvatarUpload currentUrl={user.avatarUrl as string | undefined} name={displayName} />
           <div className="text-center">
             <p className="font-display text-[22px] text-opac-ink">{displayName}</p>
             <p className="font-body text-[14px] text-opac-ink-60">{user.email as string}</p>
@@ -73,19 +61,18 @@ export default async function ProfilePage() {
               <span className="font-body text-[14px] font-semibold text-opac-ink capitalize">{value}</span>
             </div>
           ))}
-          {/* Face ID — tappable to enroll / re-enroll */}
-          <a href="/scan/face/enroll" className="flex items-center justify-between px-4 py-3.5">
-            <span className="font-body text-[14px] text-opac-ink-60">Face ID</span>
-            <div className="flex items-center gap-2">
-              <span className={`font-body text-[14px] font-semibold ${user.faceEnrolled ? 'text-opac-green' : 'text-opac-ink-60'}`}>
-                {user.faceEnrolled ? 'Enrolled' : 'Not enrolled'}
-              </span>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M6 4L10 8L6 12" stroke="#9CA3AF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </a>
         </div>
+
+        {/* Messages link — only for archers */}
+        {roles.includes('archer') && (
+          <a href="/messages" className="bg-white rounded-[16px] border border-opac-border flex items-center justify-between px-4 py-3.5">
+            <span className="font-body text-[14px] text-opac-ink-60">Direct Messages</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="#9CA3AF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
+        )}
+
         <LogoutButton />
       </div>
     </>

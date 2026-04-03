@@ -21,14 +21,14 @@ export default function ForumNewPostClient({ authorId }: Props) {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/payload/forum-posts', {
+      const res = await fetch('/api/forum/post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title.trim(), body: body.trim(), author: authorId }),
+        body: JSON.stringify({ title: title.trim(), body: body.trim() }),
       })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data?.errors?.[0]?.message ?? 'Failed to create post')
+        throw new Error(data?.error ?? data?.errors?.[0]?.message ?? 'Failed to create post')
       }
       router.push('/forum')
       router.refresh()
