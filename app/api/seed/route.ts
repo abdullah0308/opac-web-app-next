@@ -2,12 +2,6 @@ import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 
-/**
- * GET /api/seed
- * Idempotent full seed: creates 4 clans + 8 users (skips any that already exist).
- * Safe to run multiple times.
- */
-
 const CLANS = [
   { name: 'Wolves', colour: '#6B7280' },
   { name: 'Lions',  colour: '#F59E0B' },
@@ -17,87 +11,77 @@ const CLANS = [
 
 const USERS = [
   {
-    archerId: 'AM0032', name: 'Abdullah Mohamed', email: 'am0032@opac.app',
+    archerId: 'IB0035', name: 'Izz Shahaziq Bin Helmi Johan', email: 'ib0035@opac.app',
     bowType: 'recurve', level: 'elite', clan: 'Wolves',
-    roles: ['archer', 'coach', 'admin'], gender: 'male',
-    phone: '59102080', dateOfBirth: '2003-08-03T00:00:00.000Z',
+    roles: ['archer', 'admin'], gender: 'male',
+    dateOfBirth: '1998-09-29T00:00:00.000Z',
   },
   {
     archerId: 'FL0018', name: 'Farhaan Lalloo', email: 'fl0018@opac.app',
     bowType: 'recurve', level: 'intermediate', clan: 'Wolves',
-    roles: ['archer'], gender: 'male',
+    roles: ['archer', 'coach'], gender: 'male',
+    dateOfBirth: '2005-05-06T00:00:00.000Z',
   },
   {
-    archerId: 'RM0001', name: 'Rohan Mungur', email: 'rm0001@opac.app',
-    bowType: 'recurve', level: 'beginner', clan: 'Bears',
-    roles: ['archer'], gender: 'male',
-  },
-  {
-    archerId: 'ST0042', name: 'Sara Thacoor', email: 'st0042@opac.app',
-    bowType: 'compound', level: 'beginner', clan: 'Lions',
+    archerId: 'CB0054', name: 'Cochowouth-Azeer Bibi Tehziba', email: 'cb0054@opac.app',
+    bowType: 'recurve', level: 'intermediate', clan: 'Wolves',
     roles: ['archer'], gender: 'female',
   },
   {
-    archerId: 'KP0015', name: 'Karan Patten', email: 'kp0015@opac.app',
-    bowType: 'recurve', level: 'intermediate', clan: 'Eagles',
+    archerId: 'ZB0025', name: 'Zaydaan Baubooa', email: 'zb0025@opac.app',
+    bowType: 'recurve', level: 'elite', clan: 'Bears',
     roles: ['archer'], gender: 'male',
+    dateOfBirth: '2004-12-20T00:00:00.000Z',
   },
   {
-    archerId: 'NB0007', name: 'Nadia Bheekhun', email: 'nb0007@opac.app',
-    bowType: 'recurve', level: 'beginner', clan: 'Wolves',
-    roles: ['archer'], gender: 'female',
-  },
-  {
-    archerId: 'MC0023', name: 'Marcus Céleste', email: 'mc0023@opac.app',
-    bowType: 'compound', level: 'intermediate', clan: 'Bears',
+    archerId: 'DD0118', name: 'Deevesh Dabee', email: 'dd0118@opac.app',
+    bowType: 'recurve', level: 'elite', clan: 'Eagles',
     roles: ['archer'], gender: 'male',
+    dateOfBirth: '2002-01-19T00:00:00.000Z',
   },
   {
-    archerId: 'JD0055', name: 'Jade Doubrova', email: 'jd0055@opac.app',
-    bowType: 'recurve', level: 'elite', clan: 'Lions',
+    archerId: 'HB0007', name: 'Habibah Bhollah', email: 'hb0007@opac.app',
+    bowType: 'recurve', level: 'intermediate', clan: 'Lions',
     roles: ['archer'], gender: 'female',
   },
 ]
 
+/**
+ * GET /api/seed
+ * Wipes all data then seeds 4 clans + 6 real archers.
+ */
 export async function GET() {
   try {
     const payload = await getPayload({ config })
     const results: Record<string, string> = {}
 
-    // 1. Ensure all 4 clans exist
-    const clanIds: Record<string, string | number> = {}
-    for (const clan of CLANS) {
-      const existing = await payload.find({
-        collection: 'clans',
-        where: { name: { equals: clan.name } },
-        limit: 1,
-      })
-      if (existing.docs.length > 0) {
-        clanIds[clan.name] = existing.docs[0].id
-        results[`clan:${clan.name}`] = 'already exists'
-      } else {
-        const created = await payload.create({
-          collection: 'clans',
-          data: { name: clan.name, colour: clan.colour, points: 0, season: '2026' },
-        })
-        clanIds[clan.name] = created.id
-        results[`clan:${clan.name}`] = 'created'
+    // ── 1. Wipe all data ────────────────────────────────────────────────────
+    const collections = ['scores', 'attendance', 'payments', 'messages', 'forum-posts', 'sessions', 'users', 'clans'] as const
+    for (const col of collections) {
+      const all = await payload.find({ collection: col, limit: 1000, overrideAccess: true })
+      for (const doc of all.docs) {
+        await payload.delete({ collection: col, id: doc.id, overrideAccess: true })
       }
+      results[`wipe:${col}`] = `deleted ${all.docs.length}`
     }
 
-    // 2. Ensure all 8 users exist
-    for (const u of USERS) {
-      const existing = await payload.find({
-        collection: 'users',
-        where: { archerId: { equals: u.archerId } },
-        limit: 1,
+    // ── 2. Create clans ─────────────────────────────────────────────────────
+    const clanIds: Record<string, string | number> = {}
+    for (const clan of CLANS) {
+      const created = await payload.create({
+        collection: 'clans',
+        overrideAccess: true,
+        data: { name: clan.name, colour: clan.colour, points: 0, season: '2026' },
       })
-      if (existing.docs.length > 0) {
-        results[`user:${u.archerId}`] = 'already exists'
-        continue
-      }
+      clanIds[clan.name] = created.id
+      results[`clan:${clan.name}`] = 'created'
+    }
+
+    // ── 3. Create users ─────────────────────────────────────────────────────
+    for (const u of USERS) {
       await payload.create({
         collection: 'users',
+        overrideAccess: true,
         data: {
           archerId: u.archerId,
           name: u.name,
@@ -110,8 +94,7 @@ export async function GET() {
           bowType: u.bowType as 'recurve' | 'compound' | 'barebow',
           level: u.level as 'beginner' | 'intermediate' | 'elite',
           gender: u.gender as 'male' | 'female' | 'other',
-          clan: clanIds[u.clan],
-          ...(u.phone ? { phone: u.phone } : {}),
+          clanId: clanIds[u.clan],
           ...(u.dateOfBirth ? { dateOfBirth: u.dateOfBirth } : {}),
         },
       })
