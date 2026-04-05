@@ -4,141 +4,54 @@ import config from '@payload-config'
 
 /**
  * GET /api/seed-update
- * - Patches AM0032 name → "Abdullah Mohamed", level → elite, setupComplete → true
- * - Creates any missing clans and users (same data as /api/seed)
- * Safe to run multiple times.
+ * Creates AM0032 if missing. Safe to run multiple times.
  */
-
-const CLANS = [
-  { name: 'Wolves', colour: '#6B7280' },
-  { name: 'Lions',  colour: '#F59E0B' },
-  { name: 'Bears',  colour: '#92400E' },
-  { name: 'Eagles', colour: '#2563EB' },
-]
-
-const USERS = [
-  {
-    archerId: 'AM0032', name: 'Abdullah Mohamed', email: 'am0032@opac.app',
-    bowType: 'recurve', level: 'elite', clan: 'Wolves',
-    roles: ['archer', 'coach', 'admin'], gender: 'male',
-    phone: '59102080', dateOfBirth: '2003-08-03T00:00:00.000Z',
-  },
-  {
-    archerId: 'FL0018', name: 'Farhaan Lalloo', email: 'fl0018@opac.app',
-    bowType: 'recurve', level: 'intermediate', clan: 'Wolves',
-    roles: ['archer'], gender: 'male',
-  },
-  {
-    archerId: 'RM0001', name: 'Rohan Mungur', email: 'rm0001@opac.app',
-    bowType: 'recurve', level: 'beginner', clan: 'Bears',
-    roles: ['archer'], gender: 'male',
-  },
-  {
-    archerId: 'ST0042', name: 'Sara Thacoor', email: 'st0042@opac.app',
-    bowType: 'compound', level: 'beginner', clan: 'Lions',
-    roles: ['archer'], gender: 'female',
-  },
-  {
-    archerId: 'KP0015', name: 'Karan Patten', email: 'kp0015@opac.app',
-    bowType: 'recurve', level: 'intermediate', clan: 'Eagles',
-    roles: ['archer'], gender: 'male',
-  },
-  {
-    archerId: 'NB0007', name: 'Nadia Bheekhun', email: 'nb0007@opac.app',
-    bowType: 'recurve', level: 'beginner', clan: 'Wolves',
-    roles: ['archer'], gender: 'female',
-  },
-  {
-    archerId: 'MC0023', name: 'Marcus Céleste', email: 'mc0023@opac.app',
-    bowType: 'compound', level: 'intermediate', clan: 'Bears',
-    roles: ['archer'], gender: 'male',
-  },
-  {
-    archerId: 'JD0055', name: 'Jade Doubrova', email: 'jd0055@opac.app',
-    bowType: 'recurve', level: 'elite', clan: 'Lions',
-    roles: ['archer'], gender: 'female',
-  },
-]
-
 export async function GET() {
   try {
     const payload = await getPayload({ config })
     const results: Record<string, string> = {}
 
-    // 1. Ensure all clans exist
-    const clanIds: Record<string, string | number> = {}
-    for (const clan of CLANS) {
-      const existing = await payload.find({
-        collection: 'clans',
-        where: { name: { equals: clan.name } },
-        limit: 1,
-      })
-      if (existing.docs.length > 0) {
-        clanIds[clan.name] = existing.docs[0].id
-        results[`clan:${clan.name}`] = 'already exists'
-      } else {
-        const created = await payload.create({
-          collection: 'clans',
-          data: { name: clan.name, colour: clan.colour, points: 0, season: '2026' },
-        })
-        clanIds[clan.name] = created.id
-        results[`clan:${clan.name}`] = 'created'
-      }
-    }
+    // Resolve Wolves clan id
+    const wolvesResult = await payload.find({
+      collection: 'clans',
+      where: { name: { equals: 'Wolves' } },
+      limit: 1,
+      overrideAccess: true,
+    })
+    const wolvesId = wolvesResult.docs[0]?.id
+    if (!wolvesId) return NextResponse.json({ error: 'Wolves clan not found — run /api/seed first' }, { status: 400 })
 
-    // 2. Patch AM0032 name + level
-    const am0032 = await payload.find({
+    // Create AM0032 if not already there
+    const existing = await payload.find({
       collection: 'users',
       where: { archerId: { equals: 'AM0032' } },
       limit: 1,
+      overrideAccess: true,
     })
-    if (am0032.docs.length > 0) {
-      await payload.update({
-        collection: 'users',
-        id: am0032.docs[0].id,
-        data: {
-          name: 'Abdullah Mohamed',
-          level: 'elite',
-          setupComplete: true,
-          clan: clanIds['Wolves'],
-        },
-      })
-      results['patch:AM0032'] = 'updated name + level'
-    } else {
-      results['patch:AM0032'] = 'not found — will be created below'
-    }
 
-    // 3. Create any missing users
-    for (const u of USERS) {
-      const existing = await payload.find({
-        collection: 'users',
-        where: { archerId: { equals: u.archerId } },
-        limit: 1,
-      })
-      if (existing.docs.length > 0) {
-        if (u.archerId !== 'AM0032') results[`user:${u.archerId}`] = 'already exists'
-        continue
-      }
+    if (existing.docs.length > 0) {
+      results['AM0032'] = 'already exists'
+    } else {
       await payload.create({
         collection: 'users',
+        overrideAccess: true,
         data: {
-          archerId: u.archerId,
-          name: u.name,
-          email: u.email,
+          archerId: 'AM0032',
+          name: 'Abdullah Mohamed',
+          email: 'am0032@opac.app',
           password: '0P@C26',
-          roles: u.roles as ('archer' | 'coach' | 'admin')[],
+          roles: ['archer', 'coach', 'admin'],
           active: true,
           faceEnrolled: false,
           setupComplete: true,
-          bowType: u.bowType as 'recurve' | 'compound' | 'barebow',
-          level: u.level as 'beginner' | 'intermediate' | 'elite',
-          gender: u.gender as 'male' | 'female' | 'other',
-          clan: clanIds[u.clan],
-          ...(u.phone ? { phone: u.phone } : {}),
-          ...(u.dateOfBirth ? { dateOfBirth: u.dateOfBirth } : {}),
+          bowType: 'recurve',
+          level: 'elite',
+          gender: 'male',
+          clanId: wolvesId,
+          dateOfBirth: '2003-08-03T00:00:00.000Z',
         },
       })
-      results[`user:${u.archerId}`] = 'created'
+      results['AM0032'] = 'created'
     }
 
     return NextResponse.json({ success: true, results })
