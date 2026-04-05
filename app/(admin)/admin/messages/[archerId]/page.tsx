@@ -37,7 +37,7 @@ export default async function AdminMessageThreadPage({ params }: { params: Promi
       ? String((m.from as { id?: string | number }).id)
       : String(m.from)) === String(userId),
     body: m.body ?? '',
-    time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '',
+    time: m.createdAt ?? '',
   }))
 
   return (

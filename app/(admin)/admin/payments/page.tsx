@@ -2,22 +2,91 @@ import { getCurrentUserId } from '@/lib/auth'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
+import type { BasePayload } from 'payload'
+import PaymentsClient from './PaymentsClient'
 
 export const metadata = { title: 'Payment Management — OPAC Admin' }
 
-type PaymentDoc = {
-  id: string | number
-  archer?: { name?: string } | string | null
-  description?: string
-  amount?: number
-  status?: string
-  dueDate?: string
-}
+const MONTHLY_AMOUNT = 300
+const MONTHLY_DESC = 'Monthly club fee'
+// Generate from this month onwards (going back 12 months max)
+const START_YEAR = 2026
+const START_MONTH = 1 // January
 
-const statusConfig: Record<string, { label: string; bg: string; text: string }> = {
-  paid:    { label: 'Paid',    bg: 'bg-[#DCFCE7]', text: 'text-[#16A34A]' },
-  overdue: { label: 'Overdue', bg: 'bg-[#FEE2E2]', text: 'text-[#DC2626]' },
-  due:     { label: 'Due',     bg: 'bg-opac-gold-light', text: 'text-opac-gold' },
+async function syncMonthlyPayments(payload: BasePayload) {
+  const today = new Date()
+
+  // Build list of months from START to current
+  const months: { year: number; month: number }[] = []
+  const d = new Date(START_YEAR, START_MONTH - 1, 1)
+  while (d <= today) {
+    months.push({ year: d.getFullYear(), month: d.getMonth() + 1 })
+    d.setMonth(d.getMonth() + 1)
+  }
+
+  // Get all archers
+  const archersResult = await payload.find({
+    collection: 'users',
+    limit: 500,
+    overrideAccess: true,
+  })
+
+  for (const archer of archersResult.docs) {
+    for (const { year, month } of months) {
+      const dueDateISO = `${year}-${String(month).padStart(2, '0')}-05T00:00:00.000Z`
+      const dueDate = new Date(dueDateISO)
+      const status = dueDate < today ? 'overdue' : 'due'
+
+      // Check if already exists
+      const existing = await payload.find({
+        collection: 'payments',
+        where: {
+          and: [
+            { archer: { equals: archer.id } },
+            { dueDate: { equals: dueDateISO } },
+            { description: { equals: MONTHLY_DESC } },
+          ],
+        },
+        limit: 1,
+        overrideAccess: true,
+      })
+
+      if (existing.docs.length === 0) {
+        await payload.create({
+          collection: 'payments',
+          overrideAccess: true,
+          data: {
+            archer: Number(archer.id),
+            amount: MONTHLY_AMOUNT,
+            dueDate: dueDateISO,
+            status,
+            description: MONTHLY_DESC,
+          },
+        })
+      }
+    }
+  }
+
+  // Mark any due payments with a past dueDate as overdue
+  const overdueCheck = await payload.find({
+    collection: 'payments',
+    where: {
+      and: [
+        { status: { equals: 'due' } },
+        { dueDate: { less_than: today.toISOString() } },
+      ],
+    },
+    limit: 500,
+    overrideAccess: true,
+  })
+  for (const p of overdueCheck.docs) {
+    await payload.update({
+      collection: 'payments',
+      id: p.id,
+      overrideAccess: true,
+      data: { status: 'overdue' },
+    })
+  }
 }
 
 export default async function AdminPaymentsPage() {
@@ -25,72 +94,53 @@ export default async function AdminPaymentsPage() {
   if (!userId) redirect('/login')
 
   const payload = await getPayload({ config })
-  const paymentsResult = await payload.find({
-    collection: 'payments',
-    sort: '-dueDate',
-    limit: 100,
-  })
-  const payments = paymentsResult.docs as unknown as PaymentDoc[]
 
-  const overdueTotal = payments
-    .filter((p) => p.status === 'overdue')
-    .reduce((s, p) => s + (p.amount ?? 0), 0)
-  const paidTotal = payments
-    .filter((p) => p.status === 'paid')
-    .reduce((s, p) => s + (p.amount ?? 0), 0)
+  // Auto-sync monthly payments before displaying
+  await syncMonthlyPayments(payload)
+
+  const [paymentsResult, archersResult] = await Promise.all([
+    payload.find({ collection: 'payments', sort: '-dueDate', limit: 200, depth: 1 }),
+    payload.find({ collection: 'users', sort: 'name', limit: 200, overrideAccess: true }),
+  ])
+
+  type PaymentDoc = {
+    id: string | number
+    archer?: { id?: string | number; name?: string } | string | null
+    description?: string
+    amount?: number
+    status?: string
+    dueDate?: string
+  }
+
+  const payments = (paymentsResult.docs as unknown as PaymentDoc[]).map((p) => ({
+    id: p.id,
+    archerName:
+      typeof p.archer === 'object' && p.archer !== null
+        ? (p.archer as { name?: string }).name ?? 'Unknown'
+        : 'Unknown',
+    description: p.description,
+    amount: p.amount ?? 0,
+    status: p.status ?? 'due',
+    dueDate: p.dueDate,
+  }))
+
+  const archers = archersResult.docs.map((u) => ({
+    id: u.id,
+    name: (u as unknown as { name?: string }).name,
+    archerId: (u as unknown as { archerId?: string }).archerId,
+  }))
+
+  const overdueTotal = payments.filter((p) => p.status === 'overdue').reduce((s, p) => s + p.amount, 0)
+  const paidTotal = payments.filter((p) => p.status === 'paid').reduce((s, p) => s + p.amount, 0)
 
   return (
     <div className="p-6 flex flex-col gap-5">
-      <div>
-        <h1 className="font-display text-[24px] text-opac-ink">Payments</h1>
-        <p className="font-body text-[13px] text-opac-ink-60">{payments.length} records</p>
-      </div>
-
-      {/* Summary */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white rounded-[16px] p-4 border border-opac-border">
-          <p className="font-body text-[11px] font-semibold text-opac-ink-30 uppercase tracking-[0.07em] mb-1">Overdue</p>
-          <p className="font-mono text-[22px] font-semibold text-opac-error">
-            {overdueTotal > 0 ? `Rs ${overdueTotal.toLocaleString()}` : '—'}
-          </p>
-        </div>
-        <div className="bg-white rounded-[16px] p-4 border border-opac-border">
-          <p className="font-body text-[11px] font-semibold text-opac-ink-30 uppercase tracking-[0.07em] mb-1">Collected</p>
-          <p className="font-mono text-[22px] font-semibold text-opac-success">Rs {paidTotal.toLocaleString()}</p>
-        </div>
-      </div>
-
-      {/* Payments list */}
-      <div className="flex flex-col gap-2">
-        {payments.map((payment) => {
-          const archerName =
-            typeof payment.archer === 'object' && payment.archer !== null
-              ? (payment.archer as { name?: string }).name ?? 'Unknown'
-              : 'Unknown'
-          const status = payment.status ?? 'due'
-          const cfg = statusConfig[status] ?? statusConfig.due
-          const dateStr = payment.dueDate
-            ? new Date(payment.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-            : '—'
-
-          return (
-            <div key={String(payment.id)} className="bg-white rounded-[14px] px-4 py-3.5 border border-opac-border flex items-center gap-3">
-              <div className="flex-1 min-w-0">
-                <p className="font-body text-[14px] font-semibold text-opac-ink">{archerName}</p>
-                <p className="font-body text-[12px] text-opac-ink-60">{payment.description ?? 'Club fee'} · Due {dateStr}</p>
-              </div>
-              <div className="flex flex-col items-end gap-1.5">
-                <span className="font-mono text-[15px] font-semibold text-opac-ink">
-                  Rs {(payment.amount ?? 0).toLocaleString()}
-                </span>
-                <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>
-                  {cfg.label}
-                </span>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      <PaymentsClient
+        archers={archers}
+        payments={payments}
+        overdueTotal={overdueTotal}
+        paidTotal={paidTotal}
+      />
     </div>
   )
 }

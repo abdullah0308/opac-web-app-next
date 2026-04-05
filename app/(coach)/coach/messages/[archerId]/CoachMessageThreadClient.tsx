@@ -4,6 +4,19 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 type Message = { id: string; fromMe: boolean; body: string; time: string }
+
+function formatMsgTime(iso: string) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  const now = new Date()
+  const isToday = d.toDateString() === now.toDateString()
+  const yesterday = new Date(now)
+  yesterday.setDate(now.getDate() - 1)
+  const isYesterday = d.toDateString() === yesterday.toDateString()
+  if (isToday) return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  if (isYesterday) return `Yesterday ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+}
 type Props = { messages: Message[]; toId: string; partnerName: string }
 
 export default function CoachMessageThreadClient({ messages: initialMessages, toId, partnerName }: Props) {
@@ -30,8 +43,7 @@ export default function CoachMessageThreadClient({ messages: initialMessages, to
         body: JSON.stringify({ toId, body: body.trim() }),
       })
       if (res.ok) {
-        const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-        setMessages(prev => [...prev, { id: Date.now().toString(), fromMe: true, body: body.trim(), time: now }])
+          setMessages(prev => [...prev, { id: Date.now().toString(), fromMe: true, body: body.trim(), time: new Date().toISOString() }])
         setBody('')
         router.refresh()
       } else {
@@ -61,7 +73,7 @@ export default function CoachMessageThreadClient({ messages: initialMessages, to
             }`}>
               <p className="font-body text-[14px] leading-snug">{msg.body}</p>
               <p className={`font-body text-[10px] mt-1 text-right ${msg.fromMe ? 'text-[rgba(255,255,255,0.6)]' : 'text-opac-ink-30'}`}>
-                {msg.time}
+                {formatMsgTime(msg.time)}
               </p>
             </div>
           </div>

@@ -66,7 +66,7 @@ export default async function AdminMessagesPage() {
             {convList.map(([partnerId, { name, lastMsg }]) => {
               const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
               const timeStr = lastMsg.createdAt
-                ? new Date(lastMsg.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+                ? new Date(lastMsg.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
                 : ''
               return (
                 <Link key={partnerId} href={`/admin/messages/${partnerId}`}

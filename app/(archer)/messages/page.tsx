@@ -48,9 +48,7 @@ export default async function ArcherMessagesPage({ searchParams }: { searchParam
         ? String((m.from as { id?: string | number }).id)
         : String(m.from)) === String(userId),
       body: m.body ?? '',
-      time: m.createdAt
-        ? new Date(m.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-        : '',
+      time: m.createdAt ?? '',
     }))
 
     const partnerName = (partner.name as string) || 'Coach'
@@ -107,7 +105,7 @@ export default async function ArcherMessagesPage({ searchParams }: { searchParam
           convList.map(([partnerId, { name, lastMsg }]) => {
             const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
             const timeStr = lastMsg.createdAt
-              ? new Date(lastMsg.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+              ? new Date(lastMsg.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
               : ''
 
             return (
