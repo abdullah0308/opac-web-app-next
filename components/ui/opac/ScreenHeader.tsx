@@ -24,15 +24,12 @@ export function ScreenHeader({
   className = '',
 }: ScreenHeaderProps) {
   const rightSlot = right ?? rightIcon ?? (
-    <button className="w-8 h-8 flex items-center justify-center cursor-pointer" aria-label="Notifications">
+    <Link href="/profile" className="w-9 h-9 rounded-full bg-opac-surface flex items-center justify-center" aria-label="Profile">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path
-          d="M10 2C7.23858 2 5 4.23858 5 7V11L3 13V14H17V13L15 11V7C15 4.23858 12.7614 2 10 2Z"
-          stroke="#1A1A18" strokeWidth="1.6" strokeLinejoin="round"
-        />
-        <path d="M8 14C8 15.1046 8.89543 16 10 16C11.1046 16 12 15.1046 12 14" stroke="#1A1A18" strokeWidth="1.6"/>
+        <circle cx="10" cy="8" r="3.5" stroke="#5C5C58" strokeWidth="1.5"/>
+        <path d="M3 18C3 14.7 6.1 12 10 12S17 14.7 17 18" stroke="#5C5C58" strokeWidth="1.5" strokeLinecap="round"/>
       </svg>
-    </button>
+    </Link>
   )
 
   return (
