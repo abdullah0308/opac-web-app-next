@@ -57,7 +57,7 @@ export default async function ForumPage() {
               : false
 
             return (
-              <div key={post.id} className="bg-white rounded-[16px] p-4 border border-opac-border">
+              <Link key={post.id} href={`/forum/${post.id}`} className="bg-white rounded-[16px] p-4 border border-opac-border block">
                 <div className="flex items-center gap-2.5 mb-3">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
                     isAuthor ? 'bg-opac-green' : 'bg-opac-green-light'
@@ -89,7 +89,7 @@ export default async function ForumPage() {
                     {likeCount}
                   </span>
                 </div>
-              </div>
+              </Link>
             )
           })
         )}
