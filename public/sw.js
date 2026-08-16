@@ -2,7 +2,9 @@
 // Strategy: never cache personal data. Only immutable/static assets are stored.
 // Navigations go to the network and fall back to a static offline page.
 
-const VERSION = 'v2'
+// Bump on any change to precached/static assets — /icons/ is cache-first, so
+// without a new version returning users keep the previously cached icons.
+const VERSION = 'v3'
 const STATIC_CACHE = `opac-static-${VERSION}`
 const OFFLINE_URL = '/offline'
 
