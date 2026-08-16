@@ -16,4 +16,6 @@ export { OPACLogoDark, OPACLogoLight, OPACLogoSmall, OPACLogoLarge } from './OPA
 export { RoleSync } from './RoleSync';
 export { LogoutButton } from './LogoutButton';
 export { AvatarUpload } from './AvatarUpload';
+export { SWRegister } from './SWRegister';
+export { PWAInstallPrompt } from './PWAInstallPrompt';
 export * from './tokens';

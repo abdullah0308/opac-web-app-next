@@ -26,7 +26,16 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "OPAC — Oasis Pailles Archery Club",
   description: "The official app for Oasis Pailles Archery Club members.",
+  applicationName: "OPAC",
   manifest: "/manifest.json",
+  // iOS uses these link tags, not the manifest, for the home screen icon.
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

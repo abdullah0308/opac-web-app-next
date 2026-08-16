@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { requireRole } from '@/lib/auth'
 import { RoleSync } from '@/components/ui/opac/RoleSync'
+import { PWAInstallPrompt } from '@/components/ui/opac/PWAInstallPrompt'
 import AdminLayoutClient from './AdminLayoutClient'
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
@@ -10,6 +11,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     <>
       <RoleSync />
       <AdminLayoutClient>{children}</AdminLayoutClient>
+      <PWAInstallPrompt />
     </>
   )
 }

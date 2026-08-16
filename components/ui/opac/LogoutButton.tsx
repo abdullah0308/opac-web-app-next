@@ -3,6 +3,8 @@
 export function LogoutButton() {
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
+    // Drop anything the service worker holds — phones get shared at the club.
+    navigator.serviceWorker?.controller?.postMessage('CLEAR_CACHES')
     window.location.href = '/login'
   }
 

@@ -4,6 +4,12 @@ import { NextRequest, NextResponse } from 'next/server'
 const PUBLIC_PREFIXES = [
   '/login',
   '/forgot-password',
+  // PWA offline fallback — must render with no connection and no session
+  '/offline',
+  // Browsers fetch the manifest without credentials; behind auth it 307s to
+  // /login and the app becomes uninstallable. The matcher's js(?!on) rule
+  // means .json is not bypassed as a static file, so it needs listing here.
+  '/manifest.json',
   '/api/auth/',
   '/api/payload/',
   '/api/webhooks/',
