@@ -61,7 +61,7 @@ export default function LoginClient() {
       </div>
 
       {/* Login card */}
-      <div className="w-full max-w-[340px] bg-white rounded-2xl p-6 shadow-card">
+      <div className="w-full max-w-[340px] glass-card rounded-2xl p-6">
         <h2 className="font-display text-[20px] text-opac-ink mb-1">Sign in</h2>
         <p className="text-[13px] text-opac-ink-60 mb-6">Enter your Archer ID and password</p>
 
@@ -85,7 +85,7 @@ export default function LoginClient() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
-              className="h-[52px] rounded-[8px] border border-opac-border bg-opac-bg px-4 font-body text-[15px] text-opac-ink outline-none focus:border-opac-green transition-colors"
+              className="h-[52px] glass-well rounded-[10px] px-4 font-body text-[15px] text-opac-ink outline-none focus:border-opac-green transition-colors"
             />
           </div>
 
@@ -96,7 +96,7 @@ export default function LoginClient() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-1 w-full h-[52px] rounded-[12px] bg-opac-green hover:bg-[#1A5233] text-white font-body text-[15px] font-semibold transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="mt-1 w-full h-[52px] rounded-[12px] glass-green text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[15px] font-semibold transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? 'Signing in…' : 'Sign In'}
           </button>

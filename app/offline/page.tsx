@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Ambient } from '@/components/ui/opac/Ambient'
 
 export const metadata: Metadata = {
   title: 'Offline — OPAC',
@@ -6,8 +7,10 @@ export const metadata: Metadata = {
 
 export default function OfflinePage() {
   return (
+    <>
+    <Ambient />
     <div className="phone-frame flex flex-col items-center justify-center px-8 text-center">
-      <div className="w-16 h-16 rounded-[18px] bg-opac-green flex items-center justify-center mb-6">
+      <div className="w-16 h-16 glass-green rounded-[20px] flex items-center justify-center mb-6">
         <span className="text-white font-display text-[28px]">O</span>
       </div>
 
@@ -19,10 +22,11 @@ export default function OfflinePage() {
 
       <a
         href="/dashboard"
-        className="mt-8 px-6 py-3.5 rounded-[14px] bg-opac-green text-white font-body font-semibold text-[15px] no-underline"
+        className="mt-8 px-6 py-3.5 glass-green rounded-[15px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body font-semibold text-[15px] no-underline"
       >
         Try again
       </a>
     </div>
+    </>
   )
 }

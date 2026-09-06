@@ -97,7 +97,7 @@ export default async function ArcherMessagesPage({ searchParams }: { searchParam
 
       <div className="p-5 flex flex-col gap-2">
         {convList.length === 0 ? (
-          <div className="bg-white rounded-[16px] p-8 border border-opac-border text-center">
+          <div className="glass-card rounded-[16px] p-8 text-center">
             <p className="font-body text-[15px] text-opac-ink-60">No messages yet.</p>
             <p className="font-body text-[13px] text-opac-ink-30 mt-2">Your coach can send you a direct message here.</p>
           </div>
@@ -110,7 +110,7 @@ export default async function ArcherMessagesPage({ searchParams }: { searchParam
 
             return (
               <a key={partnerId} href={`/messages?with=${partnerId}`}
-                className="bg-white rounded-[14px] px-4 py-3.5 border border-opac-border flex items-center gap-3">
+                className="glass-card rounded-[14px] px-4 py-3.5 flex items-center gap-3">
                 <div className="w-11 h-11 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
                   <span className="font-display text-[13px] text-opac-green">{initials}</span>
                 </div>

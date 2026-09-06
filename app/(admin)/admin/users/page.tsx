@@ -3,7 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
 import { AddArcherClient } from './AddArcherClient'
-import { EditArcherClient } from './EditArcherClient'
+import { EditArcherClient, type Member } from './EditArcherClient'
 
 export const metadata = { title: 'User Management — OPAC Admin' }
 
@@ -20,12 +20,20 @@ export default async function AdminUsersPage() {
     id: string | number; name?: string; email?: string; roles?: string[]
     active?: boolean; bowType?: string; archerId?: string; gender?: string
     level?: string; clanId?: string | { id: string | number; name?: string } | null
+    guardians?: (string | { id: string | number })[] | null
+    hideFinancials?: boolean
   }
   const users = usersResult.docs as unknown as UserDoc[]
   const clans = clansResult.docs.map(c => ({ id: String(c.id), name: c.name as string }))
+  // Any member can be named as a guardian — parents are often members themselves.
+  const members: Member[] = users.map((u) => ({
+    id: String(u.id),
+    name: u.name ?? 'Unknown',
+    archerId: u.archerId,
+  }))
 
   return (
-    <div className="p-6 flex flex-col gap-5">
+    <div className="p-6 flex flex-col gap-5 stagger">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-[24px] text-opac-ink">Members</h1>
@@ -41,7 +49,7 @@ export default async function AdminUsersPage() {
           const roles = (user.roles ?? []) as string[]
 
           return (
-            <div key={String(user.id)} className="bg-white rounded-[14px] px-4 py-3.5 border border-opac-border flex items-center gap-3">
+            <div key={String(user.id)} className="glass-card rounded-[14px] px-4 py-3.5 flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${user.active ? 'bg-opac-green-light' : 'bg-opac-surface'}`}>
                 <span className={`font-display text-[13px] ${user.active ? 'text-opac-green' : 'text-opac-ink-30'}`}>{initials}</span>
               </div>
@@ -77,8 +85,11 @@ export default async function AdminUsersPage() {
                   roles: user.roles,
                   active: user.active,
                   clanId: user.clanId,
+                  guardians: user.guardians,
+                  hideFinancials: user.hideFinancials,
                 }}
                 clans={clans}
+                members={members}
               />
             </div>
           )

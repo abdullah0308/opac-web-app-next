@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getCurrentUserId } from '@/lib/auth'
+import { getViewContext } from '@/lib/viewer'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
@@ -8,8 +8,9 @@ import { ScreenHeader } from '@/components/ui/opac'
 export const metadata = { title: 'My Scores — OPAC' }
 
 export default async function ScoresPage() {
-  const userId = await getCurrentUserId()
-  if (!userId) redirect('/login')
+  const ctx = await getViewContext()
+  if (!ctx) redirect('/login')
+  const userId = ctx.subjectId
 
   const payload = await getPayload({ config })
 
@@ -38,20 +39,20 @@ export default async function ScoresPage() {
         title="Scores"
         right={
           <Link href="/scores/new"
-            className="h-9 px-4 rounded-[10px] bg-opac-green text-white font-body text-[13px] font-semibold flex items-center">
+            className="h-9 px-4 glass-green rounded-[11px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[13px] font-semibold flex items-center">
             + Add
           </Link>
         }
       />
 
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-5 flex flex-col gap-4 stagger">
         {/* Stats row */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white rounded-[16px] p-4 border border-opac-border text-center">
+          <div className="glass-card rounded-[16px] p-4 text-center">
             <p className="font-mono text-[28px] font-semibold text-opac-green">{bestScore}</p>
             <p className="font-body text-[12px] text-opac-ink-60 mt-0.5">Personal best</p>
           </div>
-          <div className="bg-white rounded-[16px] p-4 border border-opac-border text-center">
+          <div className="glass-card rounded-[16px] p-4 text-center">
             <p className="font-mono text-[28px] font-semibold text-opac-ink">{avgScore}</p>
             <p className="font-body text-[12px] text-opac-ink-60 mt-0.5">Average score</p>
           </div>
@@ -59,7 +60,7 @@ export default async function ScoresPage() {
 
         {/* Score list */}
         {scores.length === 0 ? (
-          <div className="bg-white rounded-[16px] p-8 border border-opac-border text-center">
+          <div className="glass-card rounded-[16px] p-8 text-center">
             <p className="font-body text-[15px] text-opac-ink-60">No scores recorded yet.</p>
             <Link href="/scores/new" className="mt-3 inline-block font-body text-[14px] font-semibold text-opac-green">
               Add your first score →
@@ -74,7 +75,7 @@ export default async function ScoresPage() {
               const pct = score.maxPoints ? Math.round(((score.points ?? 0) / score.maxPoints) * 100) : null
 
               return (
-                <Link key={score.id} href={`/scores/${score.id}`} className="bg-white rounded-[14px] p-4 border border-opac-border flex items-center gap-3">
+                <Link key={score.id} href={`/scores/${score.id}`} className="glass-card glass-interactive rounded-[14px] p-4 flex items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
                       <span className="font-mono text-[22px] font-semibold text-opac-green">{score.points ?? '—'}</span>

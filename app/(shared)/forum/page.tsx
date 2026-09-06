@@ -29,15 +29,15 @@ export default async function ForumPage() {
         title="Forum"
         right={
           <Link href="/forum/new"
-            className="h-9 px-4 rounded-[10px] bg-opac-green text-white font-body text-[13px] font-semibold flex items-center">
+            className="h-9 px-4 glass-green rounded-[11px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[13px] font-semibold flex items-center">
             + Post
           </Link>
         }
       />
 
-      <div className="p-5 flex flex-col gap-3">
+      <div className="p-5 flex flex-col gap-3 stagger">
         {posts.length === 0 ? (
-          <div className="bg-white rounded-[16px] p-8 border border-opac-border text-center">
+          <div className="glass-card rounded-[16px] p-8 text-center">
             <p className="font-body text-[15px] text-opac-ink-60">No posts yet. Be the first to post!</p>
           </div>
         ) : (
@@ -57,7 +57,7 @@ export default async function ForumPage() {
               : false
 
             return (
-              <Link key={post.id} href={`/forum/${post.id}`} className="bg-white rounded-[16px] p-4 border border-opac-border block">
+              <Link key={post.id} href={`/forum/${post.id}`} className="glass-card glass-interactive rounded-[16px] p-4 block">
                 <div className="flex items-center gap-2.5 mb-3">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
                     isAuthor ? 'bg-opac-green' : 'bg-opac-green-light'

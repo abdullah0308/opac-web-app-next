@@ -67,8 +67,8 @@ export default function ArcherMessageThreadClient({ messages: initialMessages, t
           <div key={msg.id} className={`flex ${msg.fromMe ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[78%] rounded-[16px] px-4 py-2.5 ${
               msg.fromMe
-                ? 'bg-opac-green text-white rounded-br-[4px]'
-                : 'bg-white border border-opac-border text-opac-ink rounded-bl-[4px]'
+                ? 'glass-green text-white rounded-br-[4px]'
+                : 'glass-card text-opac-ink rounded-bl-[4px]'
             }`}>
               <p className="font-body text-[14px] leading-snug">{msg.body}</p>
               <p className={`font-body text-[10px] mt-1 text-right ${msg.fromMe ? 'text-[rgba(255,255,255,0.6)]' : 'text-opac-ink-30'}`}>
@@ -81,19 +81,19 @@ export default function ArcherMessageThreadClient({ messages: initialMessages, t
       </div>
 
       {sendError && <p className="px-4 py-1 font-body text-[12px] text-red-500 bg-red-50">{sendError}</p>}
-      <form onSubmit={handleSend} className="border-t border-opac-border bg-white px-4 py-3 flex gap-2 items-end">
+      <form onSubmit={handleSend} className="glass glass-bar border-x-0 border-b-0 px-4 py-3 flex gap-2 items-end">
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(e as unknown as React.FormEvent) } }}
           placeholder="Type a message…"
           rows={1}
-          className="flex-1 rounded-[12px] border border-opac-border bg-opac-surface px-3.5 py-2.5 font-body text-[14px] text-opac-ink resize-none focus:outline-none focus:border-opac-green max-h-32"
+          className="flex-1 rounded-[12px] glass-well px-3.5 py-2.5 font-body text-[14px] text-opac-ink resize-none focus:outline-none focus:border-opac-green max-h-32"
         />
         <button
           type="submit"
           disabled={!body.trim() || sending}
-          className="w-10 h-10 rounded-full bg-opac-green flex items-center justify-center flex-shrink-0 disabled:opacity-40"
+          className="w-10 h-10 glass-green rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-40 transition-transform duration-200 ease-glide hover:scale-105 active:scale-90"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path d="M3 9L15 9M15 9L10 4M15 9L10 14" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />

@@ -134,7 +134,7 @@ export default async function AdminPaymentsPage() {
   const paidTotal = payments.filter((p) => p.status === 'paid').reduce((s, p) => s + p.amount, 0)
 
   return (
-    <div className="p-6 flex flex-col gap-5">
+    <div className="p-6 flex flex-col gap-5 stagger">
       <PaymentsClient
         archers={archers}
         payments={payments}

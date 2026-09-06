@@ -158,9 +158,9 @@ export default function ScoreEntryClient({ archerPayloadId, level = 'beginner' }
     return (
       <div className="flex flex-col">
         {/* Header */}
-        <div className="bg-white border-b border-opac-border px-5 py-3 flex items-center gap-3">
+        <div className="glass glass-bar sticky top-0 z-30 border-x-0 border-t-0 px-5 py-3 flex items-center gap-3">
           <a href="/scores"
-            className="w-9 h-9 rounded-[10px] bg-opac-surface border border-opac-border flex items-center justify-center">
+            className="w-9 h-9 rounded-[10px] glass-well flex items-center justify-center">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M11 14L6 9L11 4" stroke="#1A2B1A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -194,7 +194,7 @@ export default function ScoreEntryClient({ archerPayloadId, level = 'beginner' }
                   className={`w-full h-14 rounded-[12px] border font-body text-[14px] font-semibold flex items-center justify-between px-4 transition-all ${
                     format === key
                       ? 'bg-opac-green text-white border-opac-green'
-                      : 'bg-white text-opac-ink border-opac-border'
+                      : 'glass-well text-opac-ink border-transparent'
                   }`}>
                   <span>{f.label}</span>
                   <span className={`text-[12px] font-normal ${format === key ? 'text-[rgba(255,255,255,0.7)]' : 'text-opac-ink-30'}`}>
@@ -215,7 +215,7 @@ export default function ScoreEntryClient({ archerPayloadId, level = 'beginner' }
                 className={`h-10 px-4 rounded-[10px] border font-body text-[14px] font-semibold transition-all ${
                   distance === d
                     ? 'bg-opac-green text-white border-opac-green'
-                    : 'bg-white text-opac-ink border-opac-border'
+                    : 'glass-well text-opac-ink border-transparent'
                 }`}>
                 {d}m
               </button>
@@ -224,7 +224,7 @@ export default function ScoreEntryClient({ archerPayloadId, level = 'beginner' }
         </div>
 
         <button type="button" onClick={startEntry} disabled={!distance}
-          className="w-full h-14 rounded-[12px] bg-opac-green text-white font-body text-[15px] font-semibold mt-2 disabled:opacity-40">
+          className="w-full h-14 glass-green rounded-[13px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[15px] font-semibold mt-2 disabled:opacity-40">
           Start Scoring →
         </button>
       </div>
@@ -326,7 +326,7 @@ export default function ScoreEntryClient({ archerPayloadId, level = 'beginner' }
             type="button"
             onClick={handleSubmit}
             disabled={loading || grandTotal === 0}
-            className="w-full h-12 rounded-[12px] bg-opac-green text-white font-body text-[15px] font-semibold mt-1 disabled:opacity-40"
+            className="w-full h-12 glass-green rounded-[13px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[15px] font-semibold mt-1 disabled:opacity-40"
           >
             {loading ? 'Saving…' : `Save — ${grandTotal} / ${fmt.max}`}
           </button>

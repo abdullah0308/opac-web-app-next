@@ -47,9 +47,9 @@ export default async function ArcherListPage() {
     <>
       <ScreenHeader title="Archers" subtitle={`${archers.length} active`} />
 
-      <div className="p-5 flex flex-col gap-3">
+      <div className="p-5 flex flex-col gap-3 stagger">
         {archers.length === 0 ? (
-          <div className="bg-white rounded-[16px] p-8 border border-opac-border text-center">
+          <div className="glass-card rounded-[16px] p-8 text-center">
             <p className="font-body text-[15px] text-opac-ink-60">No active archers found.</p>
           </div>
         ) : (
@@ -60,7 +60,7 @@ export default async function ArcherListPage() {
 
             return (
               <Link key={String(archer.id)} href={`/coach/archers/${archer.id}`}
-                className="bg-white rounded-[14px] px-4 py-3.5 border border-opac-border flex items-center gap-3">
+                className="glass-card rounded-[14px] px-4 py-3.5 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
                   <span className="font-display text-[13px] text-opac-green">{initials}</span>
                 </div>

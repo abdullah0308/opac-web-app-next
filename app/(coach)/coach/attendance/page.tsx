@@ -58,18 +58,18 @@ export default async function CoachAttendancePage() {
     <>
       <ScreenHeader title="Attendance" subtitle={todayFormatted} />
 
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-5 flex flex-col gap-4 stagger">
         {/* Summary */}
         <div className="grid grid-cols-3 gap-2.5">
-          <div className="bg-white rounded-[14px] p-3.5 border border-opac-border text-center">
+          <div className="glass-card rounded-[14px] p-3.5 text-center">
             <p className="font-mono text-[26px] font-semibold text-opac-green">{presentCount}</p>
             <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Present</p>
           </div>
-          <div className="bg-white rounded-[14px] p-3.5 border border-opac-border text-center">
+          <div className="glass-card rounded-[14px] p-3.5 text-center">
             <p className="font-mono text-[26px] font-semibold text-opac-error">{absentCount}</p>
             <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Absent</p>
           </div>
-          <div className="bg-white rounded-[14px] p-3.5 border border-opac-border text-center">
+          <div className="glass-card rounded-[14px] p-3.5 text-center">
             <p className="font-mono text-[26px] font-semibold text-opac-ink">{totalArchers}</p>
             <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Total</p>
           </div>
@@ -95,7 +95,7 @@ export default async function CoachAttendancePage() {
                     : ''
 
                   return (
-                    <div key={record.id} className="bg-white rounded-[14px] px-4 py-3 border border-opac-border flex items-center gap-3">
+                    <div key={record.id} className="glass-card rounded-[14px] px-4 py-3 flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
                         <span className="font-display text-[12px] text-opac-green">{initials}</span>
                       </div>
@@ -114,7 +114,7 @@ export default async function CoachAttendancePage() {
         )}
 
         {todayRecords.length === 0 && (
-          <div className="bg-white rounded-[16px] p-8 border border-opac-border text-center">
+          <div className="glass-card rounded-[16px] p-8 text-center">
             <p className="font-body text-[15px] text-opac-ink-60">No attendance recorded today yet.</p>
           </div>
         )}

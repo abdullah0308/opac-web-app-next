@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { awardAttendancePoints } from '@/lib/points'
 
 /**
  * POST /api/attendance/face
@@ -94,6 +95,8 @@ export async function POST(req: NextRequest) {
         timestamp: new Date().toISOString(),
       },
     })
+
+    await awardAttendancePoints({ attendanceId: record.id, archerId })
 
     const archerResult = await payload.findByID({
       collection: 'users',

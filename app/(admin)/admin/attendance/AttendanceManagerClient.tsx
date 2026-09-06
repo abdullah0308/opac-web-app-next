@@ -74,31 +74,31 @@ export default function AttendanceManagerClient({ sessions, archers }: { session
   }
 
   return (
-    <div className="p-6 flex flex-col gap-5">
+    <div className="p-6 flex flex-col gap-5 stagger">
       <h1 className="font-display text-[24px] text-opac-ink">Attendance</h1>
 
       {/* Create session */}
-      <div className="bg-white rounded-[16px] border border-opac-border p-4">
+      <div className="glass-card rounded-[16px] p-4">
         <p className="font-body text-[13px] font-semibold text-opac-ink mb-3">New Session</p>
         <div className="flex gap-2 mb-2">
           <input
             value={newSessionName}
             onChange={(e) => setNewSessionName(e.target.value)}
             placeholder="Session name…"
-            className="flex-1 rounded-[10px] border border-opac-border px-3 py-2 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
+            className="flex-1 glass-well rounded-[10px] px-3 py-2 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
           />
           <input
             type="date"
             value={newSessionDate}
             onChange={(e) => setNewSessionDate(e.target.value)}
-            className="rounded-[10px] border border-opac-border px-3 py-2 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
+            className="glass-well rounded-[10px] px-3 py-2 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
           />
         </div>
         {createError && <p className="font-body text-[12px] text-red-500 mb-1">{createError}</p>}
         <button
           onClick={handleCreateSession}
           disabled={creating}
-          className="w-full h-10 rounded-[10px] bg-opac-green text-white font-body text-[14px] font-semibold disabled:opacity-50"
+          className="w-full h-10 glass-green rounded-[11px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[14px] font-semibold disabled:opacity-50"
         >
           {creating ? 'Creating…' : 'Create Session'}
         </button>
@@ -116,7 +116,7 @@ export default function AttendanceManagerClient({ sessions, archers }: { session
                 className={`w-full text-left px-3 py-2.5 rounded-[10px] border transition-colors ${
                   selectedSession?.id === s.id
                     ? 'bg-opac-green-light border-opac-green'
-                    : 'bg-white border-opac-border'
+                    : 'glass-card border-transparent'
                 }`}
               >
                 <p className={`font-body text-[13px] font-semibold ${selectedSession?.id === s.id ? 'text-opac-green' : 'text-opac-ink'}`}>{s.name}</p>
@@ -156,7 +156,7 @@ export default function AttendanceManagerClient({ sessions, archers }: { session
                     className={`flex items-center gap-3 px-4 py-3 rounded-[12px] border transition-colors text-left ${
                       isPresent
                         ? 'bg-opac-green-light border-opac-green'
-                        : 'bg-white border-opac-border'
+                        : 'glass-card border-transparent'
                     }`}
                   >
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isPresent ? 'bg-opac-green' : 'bg-opac-surface'}`}>

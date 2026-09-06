@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { awardAttendancePoints } from '@/lib/points'
 
 /**
  * POST /api/attendance/qr
@@ -93,9 +94,16 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    // Attendance is the base of the season standings.
+    const awarded = await awardAttendancePoints({
+      attendanceId: record.id,
+      archerId: archer.id as string,
+    })
+
     return NextResponse.json({
       success: true,
       attendanceId: record.id,
+      pointsAwarded: awarded,
       sessionName: session.name as string,
       archerName: archer.name as string,
     })

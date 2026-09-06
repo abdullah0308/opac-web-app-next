@@ -73,7 +73,7 @@ export default function ProfileSetupClient() {
       </div>
 
       {step === 'avatar' && (
-        <div className="w-full max-w-[340px] bg-white rounded-2xl p-6 shadow-card flex flex-col items-center gap-5">
+        <div className="w-full max-w-[340px] glass-card rounded-2xl p-6 flex flex-col items-center gap-5">
           <div className="text-center">
             <h2 className="font-display text-[22px] text-opac-ink mb-1">Add a profile photo</h2>
             <p className="font-body text-[13px] text-opac-ink-60">Help your teammates recognise you</p>
@@ -108,7 +108,7 @@ export default function ProfileSetupClient() {
               type="button"
               onClick={handleAvatarUpload}
               disabled={uploading}
-              className="w-full h-12 rounded-[12px] bg-opac-green text-white font-body text-[15px] font-semibold disabled:opacity-60"
+              className="w-full h-12 glass-green rounded-[13px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[15px] font-semibold disabled:opacity-60"
             >
               {uploading ? 'Uploading…' : avatarPreview ? 'Upload & Continue' : 'Skip for now'}
             </button>
@@ -126,7 +126,7 @@ export default function ProfileSetupClient() {
       )}
 
       {step === 'faceid' && (
-        <div className="w-full max-w-[340px] bg-white rounded-2xl p-6 shadow-card flex flex-col items-center gap-5">
+        <div className="w-full max-w-[340px] glass-card rounded-2xl p-6 flex flex-col items-center gap-5">
           <div className="w-16 h-16 rounded-full bg-opac-green-light flex items-center justify-center">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
               <circle cx="16" cy="16" r="13" stroke="#2E7D4F" strokeWidth="2"/>
@@ -150,7 +150,7 @@ export default function ProfileSetupClient() {
             <button
               type="button"
               onClick={handleYesFaceId}
-              className="w-full h-12 rounded-[12px] bg-opac-green text-white font-body text-[15px] font-semibold"
+              className="w-full h-12 glass-green rounded-[13px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[15px] font-semibold"
             >
               Yes, enrol my face
             </button>
@@ -158,7 +158,7 @@ export default function ProfileSetupClient() {
               type="button"
               onClick={handleNoFaceId}
               disabled={completing}
-              className="w-full h-12 rounded-[12px] border border-opac-border text-opac-ink-60 font-body text-[14px] disabled:opacity-60"
+              className="w-full h-12 glass-well rounded-[12px] text-opac-ink-60 font-body text-[14px] disabled:opacity-60"
             >
               {completing ? 'Setting up…' : 'No thanks, skip'}
             </button>

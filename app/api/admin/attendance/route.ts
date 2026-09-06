@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getCurrentUserId, getUserRoles } from '@/lib/auth'
+import { awardAttendancePoints, revokeAttendancePoints } from '@/lib/points'
 
 async function checkAdmin() {
   const userId = await getCurrentUserId()
   if (!userId) return null
   const roles = await getUserRoles()
-  if (!roles.includes('admin') && !roles.includes('coach')) return null
+  // Club rule: only admins correct attendance.
+  if (!roles.includes('admin')) return null
   return userId
 }
 
@@ -41,7 +43,11 @@ export async function POST(req: NextRequest) {
         timestamp: new Date().toISOString(),
       },
     })
-    return NextResponse.json({ success: true, id: rec.id })
+    const awarded = await awardAttendancePoints({
+      attendanceId: rec.id,
+      archerId,
+    })
+    return NextResponse.json({ success: true, id: rec.id, pointsAwarded: awarded })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
@@ -61,6 +67,8 @@ export async function DELETE(req: NextRequest) {
       limit: 1,
     })
     if (existing.docs[0]) {
+      // Take the attendance points back with the record.
+      await revokeAttendancePoints(existing.docs[0].id)
       await payload.delete({ collection: 'attendance', id: existing.docs[0].id })
     }
     return NextResponse.json({ success: true })

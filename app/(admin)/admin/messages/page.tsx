@@ -56,7 +56,7 @@ export default async function AdminMessagesPage() {
   const convList = Array.from(conversations.entries())
 
   return (
-    <div className="p-6 flex flex-col gap-5">
+    <div className="p-6 flex flex-col gap-5 stagger">
       <h1 className="font-display text-[24px] text-opac-ink">Direct Messages</h1>
 
       {convList.length > 0 && (
@@ -70,7 +70,7 @@ export default async function AdminMessagesPage() {
                 : ''
               return (
                 <Link key={partnerId} href={`/admin/messages/${partnerId}`}
-                  className="bg-white rounded-[14px] px-4 py-3.5 border border-opac-border flex items-center gap-3">
+                  className="glass-card rounded-[14px] px-4 py-3.5 flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
                     <span className="font-display text-[12px] text-opac-green">{initials}</span>
                   </div>
@@ -95,7 +95,7 @@ export default async function AdminMessagesPage() {
             const initials = String(a.name ?? '').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
             return (
               <Link key={String(a.id)} href={`/admin/messages/${String(a.id)}`}
-                className="bg-white rounded-[14px] px-4 py-3.5 border border-opac-border flex items-center gap-3">
+                className="glass-card rounded-[14px] px-4 py-3.5 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
                   <span className="font-display text-[12px] text-opac-green">{initials}</span>
                 </div>

@@ -13,6 +13,10 @@ interface ScreenHeaderProps {
   className?: string
 }
 
+/**
+ * Sticky frosted header. It sits at the top of the scroll container so page
+ * content passes underneath it and the blur picks up whatever is behind.
+ */
 export function ScreenHeader({
   title = 'Dashboard',
   right,
@@ -24,7 +28,11 @@ export function ScreenHeader({
   className = '',
 }: ScreenHeaderProps) {
   const rightSlot = right ?? rightIcon ?? (
-    <Link href="/profile" className="w-9 h-9 rounded-full bg-opac-surface flex items-center justify-center" aria-label="Profile">
+    <Link
+      href="/profile"
+      className="glass-well w-9 h-9 rounded-full flex items-center justify-center transition-transform duration-200 ease-glide hover:scale-105 active:scale-95"
+      aria-label="Profile"
+    >
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <circle cx="10" cy="8" r="3.5" stroke="#5C5C58" strokeWidth="1.5"/>
         <path d="M3 18C3 14.7 6.1 12 10 12S17 14.7 17 18" stroke="#5C5C58" strokeWidth="1.5" strokeLinecap="round"/>
@@ -33,12 +41,14 @@ export function ScreenHeader({
   )
 
   return (
-    <div className={`bg-white border-b border-opac-border shadow-[0_1px_8px_rgba(0,0,0,0.05)] ${className}`}>
+    <div className={`glass glass-bar sticky top-0 z-30 border-x-0 border-t-0 rounded-none ${className}`}>
       <div className={`flex items-center px-5 ${subtitle ? 'py-2.5' : 'h-14'}`}>
         {showBack ? (
-          <Link href={backHref}
-            className="w-9 h-9 rounded-[10px] bg-opac-surface flex items-center justify-center flex-shrink-0 mr-2.5"
-            aria-label="Go back">
+          <Link
+            href={backHref}
+            className="glass-well w-9 h-9 rounded-[11px] flex items-center justify-center flex-shrink-0 mr-2.5 transition-transform duration-200 ease-glide hover:-translate-x-0.5 active:scale-95"
+            aria-label="Go back"
+          >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M11 14L6 9L11 4" stroke="#1A1A18" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>

@@ -22,6 +22,17 @@ export const Clans: CollectionConfig = {
       },
     },
     {
+      name: 'logoUrl',
+      type: 'text',
+      admin: {
+        description: 'Vercel Blob URL for the clan crest, shown on the clan leaderboard.',
+      },
+    },
+    {
+      name: 'motto',
+      type: 'text',
+    },
+    {
       name: 'points',
       type: 'number',
       defaultValue: 0,

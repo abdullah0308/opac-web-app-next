@@ -13,12 +13,8 @@ const PUBLIC_PREFIXES = [
   '/api/auth/',
   '/api/payload/',
   '/api/webhooks/',
-  '/api/db-push',
-  '/api/db-migrate',
-  '/api/seed',
-  '/api/seed-update',
-  '/api/seed-attendance',
-  '/api/seed-payments',
+  // Maintenance routes are NOT listed here on purpose: they are guarded by
+  // guardMaintenanceRoute (dev-only + ADMIN_SECRET) and must stay behind auth.
   '/setup/profile',
   // Payload CMS panel handles its own authentication
   '/admin',

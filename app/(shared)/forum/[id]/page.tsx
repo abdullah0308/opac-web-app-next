@@ -35,9 +35,9 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
     <>
       <ScreenHeader title="Post" showBack backHref="/forum" />
 
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-5 flex flex-col gap-4 stagger">
         {/* Post */}
-        <div className="bg-white rounded-[16px] p-4 border border-opac-border">
+        <div className="glass-card rounded-[16px] p-4">
           <div className="flex items-center gap-2.5 mb-3">
             <div className="w-9 h-9 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
               <span className="font-display text-[12px] text-opac-green">{initials}</span>
@@ -71,7 +71,7 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
                 ? String((c.author as AuthorObj).id) === String(userId)
                 : false
               return (
-                <div key={c.id ?? i} className="bg-white rounded-[14px] p-3.5 border border-opac-border">
+                <div key={c.id ?? i} className="glass-card rounded-[14px] p-3.5">
                   <div className="flex items-center gap-2 mb-2">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${isMe ? 'bg-opac-green' : 'bg-opac-green-light'}`}>
                       <span className={`font-display text-[10px] ${isMe ? 'text-white' : 'text-opac-green'}`}>{cInitials}</span>

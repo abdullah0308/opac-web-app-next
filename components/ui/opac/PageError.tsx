@@ -7,8 +7,8 @@ interface PageErrorProps {
 
 export function PageError({ error, reset }: PageErrorProps) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 text-center gap-5">
-      <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 text-center gap-5 anim-rise">
+      <div className="w-16 h-16 rounded-full bg-[rgba(254,226,226,0.6)] border border-[rgba(239,68,68,0.18)] backdrop-blur-[8px] flex items-center justify-center anim-scale-in">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
           <path d="M14 8V15" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" />
           <circle cx="14" cy="20" r="1.5" fill="#EF4444" />
@@ -23,7 +23,7 @@ export function PageError({ error, reset }: PageErrorProps) {
       </div>
       <button
         onClick={reset}
-        className="px-6 py-3 rounded-[12px] bg-[#2E7D4F] text-white text-sm font-semibold border-none cursor-pointer"
+        className="glass-green sheen relative overflow-hidden px-6 py-3 rounded-[14px] text-white text-sm font-semibold cursor-pointer transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:scale-[0.985]"
       >
         Try again
       </button>

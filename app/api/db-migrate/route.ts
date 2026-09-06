@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
 import { Pool } from 'pg'
+import { guardMaintenanceRoute } from '@/lib/devGuard'
 
 /**
  * GET /api/db-migrate
  * Adds any missing columns to the Neon DB that were added after initial schema push.
  * Safe to run multiple times (uses IF NOT EXISTS / DO NOTHING).
  */
-export async function GET() {
+export async function GET(req: Request) {
+  const denied = guardMaintenanceRoute(req)
+  if (denied) return denied
+
   if (!process.env.DATABASE_URL) {
     return NextResponse.json({ error: 'No DATABASE_URL configured' }, { status: 500 })
   }

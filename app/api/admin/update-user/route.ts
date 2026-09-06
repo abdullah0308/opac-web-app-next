@@ -20,7 +20,7 @@ export async function PATCH(req: NextRequest) {
 
     // Only allow updating safe fields
     const allowed: Record<string, unknown> = {}
-    const allowedFields = ['name', 'bowType', 'gender', 'phone', 'dateOfBirth', 'level', 'clanId', 'roles', 'active']
+    const allowedFields = ['name', 'bowType', 'gender', 'phone', 'dateOfBirth', 'level', 'clanId', 'roles', 'active', 'guardians', 'hideFinancials']
     for (const field of allowedFields) {
       if (data[field] !== undefined) allowed[field] = data[field]
     }

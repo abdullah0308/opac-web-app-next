@@ -1,8 +1,9 @@
-import { getCurrentUserId } from '@/lib/auth'
+import { getViewContext } from '@/lib/viewer'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect, notFound } from 'next/navigation'
 import { ScreenHeader } from '@/components/ui/opac'
+import ShareWithCoachClient, { type CoachOption } from './ShareWithCoachClient'
 
 export const metadata = { title: 'Score Detail — OPAC' }
 
@@ -13,13 +14,14 @@ function arrowColour(v: number): string {
   if (v === 6 || v === 5) return 'bg-blue-500 text-white'
   if (v === 4 || v === 3) return 'bg-[#1f2937] text-white'
   if (v === 2 || v === 1) return 'bg-[#e5e7eb] text-[#111]'
-  return 'bg-[#374151] text-[#9ca3af]' // 0 / M
+  return 'bg-[#3A4038] text-[#B9BFB4]' // 0 / M
 }
 
 export default async function ScoreDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const userId = await getCurrentUserId()
-  if (!userId) redirect('/login')
+  const ctx = await getViewContext()
+  if (!ctx) redirect('/login')
+  const userId = ctx.subjectId
 
   const payload = await getPayload({ config })
 
@@ -31,6 +33,29 @@ export default async function ScoreDetailPage({ params }: { params: Promise<{ id
     ? String((score.archer as { id: string | number }).id)
     : String(score.archer)
   if (archerId !== String(userId)) notFound()
+
+  // Coaches the archer can hand this round to, plus who it went to already.
+  const coachesRes = await payload.find({
+    collection: 'users',
+    where: { and: [{ active: { equals: true } }, { roles: { contains: 'coach' } }] },
+    sort: 'name',
+    limit: 50,
+    depth: 0,
+  })
+  const coaches: CoachOption[] = (
+    coachesRes.docs as unknown as { id: string | number; name?: string }[]
+  ).map((c) => ({ id: String(c.id), name: c.name ?? 'Coach' }))
+
+  const sharedRaw = (score.sharedWith as unknown[] | null) ?? []
+  const sharedWithId = sharedRaw.length
+    ? typeof sharedRaw[0] === 'object' && sharedRaw[0] !== null
+      ? String((sharedRaw[0] as { id?: string | number }).id)
+      : String(sharedRaw[0])
+    : null
+  const verifiedByName =
+    score.verifiedBy && typeof score.verifiedBy === 'object'
+      ? ((score.verifiedBy as { name?: string }).name ?? undefined)
+      : undefined
 
   const roundScores = (score.roundScores as number[][] | null) ?? []
   const dateStr = score.date
@@ -44,9 +69,9 @@ export default async function ScoreDetailPage({ params }: { params: Promise<{ id
     <>
       <ScreenHeader title="Score Detail" showBack backHref="/scores" />
 
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-5 flex flex-col gap-4 stagger">
         {/* Summary card */}
-        <div className="bg-white rounded-[20px] p-5 border border-opac-border">
+        <div className="glass-card rounded-[20px] p-5">
           <div className="flex items-baseline gap-2 mb-1">
             <span className="font-mono text-[40px] font-semibold text-opac-green leading-none">{score.points as number}</span>
             {score.maxPoints && (
@@ -80,18 +105,30 @@ export default async function ScoreDetailPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
+        {/* Share with a coach */}
+        {!ctx.isProxy && (
+          <ShareWithCoachClient
+            scoreId={String(id)}
+            coaches={coaches}
+            sharedWithId={sharedWithId}
+            verified={Boolean(score.verified)}
+            coachFeedback={(score.coachFeedback as string) || undefined}
+            verifiedByName={verifiedByName}
+          />
+        )}
+
         {/* End-by-end breakdown */}
         {roundScores.length > 0 && (
-          <div className="bg-[#111] rounded-[16px] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[#2a2a2a]">
-              <p className="font-body text-[13px] font-semibold text-[#9ca3af]">End-by-end breakdown</p>
+          <div className="glass-dark rounded-[18px] overflow-hidden">
+            <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.1)]">
+              <p className="font-body text-[13px] font-semibold text-[rgba(255,255,255,0.6)]">End-by-end breakdown</p>
             </div>
             <div className="flex flex-col">
               {roundScores.map((end, eIdx) => {
                 const endTotal = end.reduce((s, v) => s + v, 0)
                 return (
-                  <div key={eIdx} className="flex items-center gap-3 px-4 py-2.5 border-b border-[#1f2937] last:border-0">
-                    <span className="font-body text-[12px] text-[#6b7280] w-5 flex-shrink-0">{eIdx + 1}.</span>
+                  <div key={eIdx} className="flex items-center gap-3 px-4 py-2.5 border-b border-[rgba(255,255,255,0.07)] last:border-0">
+                    <span className="font-body text-[12px] text-[rgba(255,255,255,0.45)] w-5 flex-shrink-0">{eIdx + 1}.</span>
                     <div className="flex gap-1 flex-1">
                       {end.map((val, aIdx) => (
                         <span key={aIdx}
@@ -106,22 +143,22 @@ export default async function ScoreDetailPage({ params }: { params: Promise<{ id
               })}
 
               {/* Grand total row */}
-              <div className="flex items-center gap-3 px-4 py-3 bg-[#1a1a1a] border-t border-[#2a2a2a]">
-                <span className="font-body text-[13px] text-[#9ca3af] flex-1">Total</span>
-                <span className="font-mono text-[16px] font-semibold text-opac-green">{score.points as number}</span>
+              <div className="flex items-center gap-3 px-4 py-3 bg-[rgba(255,255,255,0.06)] border-t border-[rgba(255,255,255,0.12)]">
+                <span className="font-body text-[13px] text-[rgba(255,255,255,0.6)] flex-1">Total</span>
+                <span className="font-mono text-[16px] font-semibold text-[#8FD6AB]">{score.points as number}</span>
               </div>
             </div>
           </div>
         )}
 
         {roundScores.length === 0 && (
-          <div className="bg-white rounded-[16px] p-6 border border-opac-border text-center">
+          <div className="glass-card rounded-[16px] p-6 text-center">
             <p className="font-body text-[14px] text-opac-ink-60">No end-by-end data recorded for this score.</p>
           </div>
         )}
 
         {score.notes && (
-          <div className="bg-white rounded-[16px] p-4 border border-opac-border">
+          <div className="glass-card rounded-[16px] p-4">
             <p className="font-body text-[12px] font-semibold text-opac-ink-60 mb-1">Notes</p>
             <p className="font-body text-[14px] text-opac-ink">{score.notes as string}</p>
           </div>

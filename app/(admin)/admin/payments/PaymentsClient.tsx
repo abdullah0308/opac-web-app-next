@@ -102,7 +102,7 @@ export default function PaymentsClient({
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="h-9 px-4 rounded-[10px] bg-opac-green text-white font-body text-[13px] font-semibold"
+          className="h-9 px-4 glass-green rounded-[11px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[13px] font-semibold"
         >
           + Add
         </button>
@@ -110,13 +110,13 @@ export default function PaymentsClient({
 
       {/* Summary */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white rounded-[16px] p-4 border border-opac-border">
+        <div className="glass-card rounded-[16px] p-4">
           <p className="font-body text-[11px] font-semibold text-opac-ink-30 uppercase tracking-[0.07em] mb-1">Overdue</p>
           <p className="font-mono text-[22px] font-semibold text-opac-error">
             {initOverdue > 0 ? `Rs ${initOverdue.toLocaleString()}` : '—'}
           </p>
         </div>
-        <div className="bg-white rounded-[16px] p-4 border border-opac-border">
+        <div className="glass-card rounded-[16px] p-4">
           <p className="font-body text-[11px] font-semibold text-opac-ink-30 uppercase tracking-[0.07em] mb-1">Collected</p>
           <p className="font-mono text-[22px] font-semibold text-opac-success">Rs {initPaid.toLocaleString()}</p>
         </div>
@@ -125,7 +125,7 @@ export default function PaymentsClient({
       {/* Payments list */}
       <div className="flex flex-col gap-2">
         {initialPayments.length === 0 && (
-          <div className="bg-white rounded-[16px] p-8 border border-opac-border text-center">
+          <div className="glass-card rounded-[16px] p-8 text-center">
             <p className="font-body text-[15px] text-opac-ink-60">No payments yet.</p>
           </div>
         )}
@@ -138,7 +138,7 @@ export default function PaymentsClient({
           const isLoading = statusLoading === String(payment.id)
 
           return (
-            <div key={String(payment.id)} className="bg-white rounded-[14px] px-4 py-3.5 border border-opac-border flex items-center gap-3">
+            <div key={String(payment.id)} className="glass-card rounded-[14px] px-4 py-3.5 flex items-center gap-3">
               <div className="flex-1 min-w-0">
                 <p className="font-body text-[14px] font-semibold text-opac-ink">{payment.archerName}</p>
                 <p className="font-body text-[12px] text-opac-ink-60">{payment.description ?? 'Club fee'} · Due {dateStr}</p>
@@ -164,7 +164,7 @@ export default function PaymentsClient({
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={() => setShowModal(false)}>
           <div
-            className="bg-white rounded-t-[24px] w-full max-w-md p-6 pb-8 flex flex-col gap-4"
+            className="glass rounded-t-[28px] shadow-card-lg w-full max-w-md p-6 pb-8 flex flex-col gap-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -179,7 +179,7 @@ export default function PaymentsClient({
                   value={archerId}
                   onChange={(e) => setArcherId(e.target.value)}
                   required
-                  className="w-full rounded-[12px] border border-opac-border bg-white px-3.5 py-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
+                  className="w-full rounded-[12px] glass-card px-3.5 py-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
                 >
                   <option value="">Select archer…</option>
                   {archers.map((a) => (
@@ -197,7 +197,7 @@ export default function PaymentsClient({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Club fee"
-                  className="w-full rounded-[12px] border border-opac-border bg-white px-3.5 py-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
+                  className="w-full rounded-[12px] glass-card px-3.5 py-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
                 />
               </div>
 
@@ -211,7 +211,7 @@ export default function PaymentsClient({
                     placeholder="500"
                     min={0}
                     required
-                    className="w-full rounded-[12px] border border-opac-border bg-white px-3.5 py-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
+                    className="w-full rounded-[12px] glass-card px-3.5 py-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -221,7 +221,7 @@ export default function PaymentsClient({
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
                     required
-                    className="w-full rounded-[12px] border border-opac-border bg-white px-3.5 py-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
+                    className="w-full rounded-[12px] glass-card px-3.5 py-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
                   />
                 </div>
               </div>
@@ -231,7 +231,7 @@ export default function PaymentsClient({
               <button
                 type="submit"
                 disabled={creating}
-                className="h-11 rounded-[12px] bg-opac-green text-white font-body text-[14px] font-semibold disabled:opacity-50 mt-1"
+                className="h-11 glass-green rounded-[13px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[14px] font-semibold disabled:opacity-50 mt-1"
               >
                 {creating ? 'Saving…' : 'Add Payment'}
               </button>

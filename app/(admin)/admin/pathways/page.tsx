@@ -35,14 +35,14 @@ export default async function AdminPathwaysPage() {
   }
 
   return (
-    <div className="p-6 flex flex-col gap-5">
+    <div className="p-6 flex flex-col gap-5 stagger">
       <div>
         <h1 className="font-display text-[24px] text-opac-ink">Pathways</h1>
         <p className="font-body text-[13px] text-opac-ink-60">{pathways.length} stages</p>
       </div>
 
       {pathways.length === 0 ? (
-        <div className="bg-white rounded-[16px] p-8 border border-opac-border text-center">
+        <div className="glass-card rounded-[16px] p-8 text-center">
           <p className="font-body text-[15px] text-opac-ink-60">No pathway stages configured.</p>
         </div>
       ) : (
@@ -52,7 +52,7 @@ export default async function AdminPathwaysPage() {
             const reqCount = Array.isArray(stage.requirements) ? stage.requirements.length : 0
 
             return (
-              <div key={String(stage.id)} className="bg-white rounded-[16px] p-4 border border-opac-border">
+              <div key={String(stage.id)} className="glass-card rounded-[16px] p-4">
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <div className="flex items-center gap-2 mb-1">

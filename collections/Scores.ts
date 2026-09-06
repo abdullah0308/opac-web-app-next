@@ -60,9 +60,37 @@ export const Scores: CollectionConfig = {
       type: 'textarea',
     },
     {
+      name: 'sharedWith',
+      type: 'relationship',
+      relationTo: 'users',
+      hasMany: true,
+      admin: {
+        description: 'Coaches the archer has shared this round with.',
+      },
+    },
+    {
       name: 'verified',
       type: 'checkbox',
       defaultValue: false,
+      admin: {
+        description: 'A coach has looked at this round. Training scores do not affect the leaderboard.',
+      },
+    },
+    {
+      name: 'verifiedBy',
+      type: 'relationship',
+      relationTo: 'users',
+    },
+    {
+      name: 'verifiedAt',
+      type: 'date',
+    },
+    {
+      name: 'coachFeedback',
+      type: 'textarea',
+      admin: {
+        description: 'Note back to the archer when verifying.',
+      },
     },
   ],
 }

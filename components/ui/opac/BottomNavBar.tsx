@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { motion, LayoutGroup } from 'framer-motion';
 import { colors } from './tokens';
 
 // ─── SVG Icons ───────────────────────────────────────────────────────────────
@@ -74,13 +75,6 @@ const MsgIcon = ({ active }: { active: boolean }) => (
     <path d="M8 10H16M8 14H13M7 4H17C18.1046 4 19 4.89543 19 6V14C19 15.1046 18.1046 16 17 16H13L9 20V16H7C5.89543 16 5 15.1046 5 14V6C5 4.89543 5.89543 4 7 4Z" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
-const WalletIcon = ({ active }: { active: boolean }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <rect x="2" y="6" width="20" height="14" rx="3" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.8" />
-    <path d="M16 13C16 13.5523 16.4477 14 17 14C17.5523 14 18 13.5523 18 13C18 12.4477 17.5523 12 17 12C16.4477 12 16 12.4477 16 13Z" fill={active ? colors.primaryGreen : colors.inkDisabled} />
-    <path d="M2 10H22M6 6V4" stroke={active ? colors.primaryGreen : colors.inkDisabled} strokeWidth="1.8" strokeLinecap="round" />
-  </svg>
-);
 
 // ─── Route definitions ────────────────────────────────────────────────────────
 
@@ -102,6 +96,8 @@ const coachNav = [
   { label: 'PROFILE',  href: '/profile',          icon: UserIcon },
 ];
 
+type NavDef = { label: string; href: string; icon: ({ active }: { active: boolean }) => React.ReactElement };
+
 // ─── Shared NavItem ───────────────────────────────────────────────────────────
 
 function NavItem({
@@ -109,23 +105,40 @@ function NavItem({
   label,
   icon: Icon,
   active,
+  group,
 }: {
   href: string;
   label: string;
   icon: ({ active }: { active: boolean }) => React.ReactElement;
   active: boolean;
+  group: string;
 }) {
   return (
-    <Link href={href} className="flex flex-col items-center gap-1 min-w-[44px]">
-      <div
-        className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors duration-150 ${
-          active ? 'bg-[#F0F7F2]' : 'bg-transparent'
-        }`}
-      >
-        <Icon active={active} />
+    <Link
+      href={href}
+      aria-current={active ? 'page' : undefined}
+      className="relative flex flex-col items-center gap-[3px] flex-1 min-w-0 py-1 select-none"
+    >
+      <div className="relative w-11 h-9 flex items-center justify-center">
+        {/* The pill physically travels between tabs rather than fading in. */}
+        {active && (
+          <motion.span
+            layoutId={`nav-pill-${group}`}
+            className="absolute inset-0 rounded-[13px] bg-[rgba(46,125,79,0.13)] border border-[rgba(46,125,79,0.16)] shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
+            transition={{ type: 'spring', stiffness: 480, damping: 34, mass: 0.7 }}
+          />
+        )}
+        <motion.span
+          className="relative"
+          animate={{ scale: active ? 1.06 : 1, y: active ? -1 : 0 }}
+          whileTap={{ scale: 0.88 }}
+          transition={{ type: 'spring', stiffness: 520, damping: 26 }}
+        >
+          <Icon active={active} />
+        </motion.span>
       </div>
       <span
-        className={`font-body text-[10px] font-semibold tracking-[0.04em] leading-none ${
+        className={`font-body text-[9px] font-semibold tracking-[0.05em] leading-none transition-colors duration-200 ${
           active ? 'text-opac-green' : 'text-opac-ink-30'
         }`}
       >
@@ -135,38 +148,40 @@ function NavItem({
   );
 }
 
-// ─── Exported nav bars ────────────────────────────────────────────────────────
+// ─── Dock shell ───────────────────────────────────────────────────────────────
 
-export function ArcherBottomNav() {
+function Dock({ items, group }: { items: NavDef[]; group: string }) {
   const pathname = usePathname();
+
   return (
-    <nav className="h-[72px] bg-opac-card border-t border-opac-border flex items-center justify-around pb-1">
-      {archerNav.map((item) => (
-        <NavItem
-          key={item.href}
-          href={item.href}
-          label={item.label}
-          icon={item.icon}
-          active={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
-        />
-      ))}
-    </nav>
+    <div className="absolute bottom-0 left-0 right-0 z-40 px-3 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none">
+      <LayoutGroup id={group}>
+        <nav className="glass glass-bar pointer-events-auto rounded-[24px] shadow-dock flex items-stretch justify-between px-1.5 py-1.5">
+          {items.map((item) => (
+            <NavItem
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              icon={item.icon}
+              group={group}
+              active={
+                pathname === item.href ||
+                (item.href !== '/dashboard' && pathname.startsWith(item.href))
+              }
+            />
+          ))}
+        </nav>
+      </LayoutGroup>
+    </div>
   );
 }
 
+// ─── Exported nav bars ────────────────────────────────────────────────────────
+
+export function ArcherBottomNav() {
+  return <Dock items={archerNav} group="archer" />;
+}
+
 export function CoachBottomNav() {
-  const pathname = usePathname();
-  return (
-    <nav className="h-[72px] bg-opac-card border-t border-opac-border flex items-center justify-around pb-1">
-      {coachNav.map((item) => (
-        <NavItem
-          key={item.href}
-          href={item.href}
-          label={item.label}
-          icon={item.icon}
-          active={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
-        />
-      ))}
-    </nav>
-  );
+  return <Dock items={coachNav} group="coach" />;
 }

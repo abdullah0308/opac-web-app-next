@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { guardMaintenanceRoute } from '@/lib/devGuard'
 
 /**
  * GET /api/seed-payments
@@ -80,7 +81,10 @@ function daysFromNow(offset: number): string {
   return d.toISOString()
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const denied = guardMaintenanceRoute(req)
+  if (denied) return denied
+
   try {
     const payload = await getPayload({ config })
     let created = 0

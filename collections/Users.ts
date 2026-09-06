@@ -96,6 +96,27 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      name: 'guardians',
+      type: 'relationship',
+      relationTo: 'users',
+      hasMany: true,
+      admin: {
+        description:
+          'Parents or guardians who may view this archer. They see the dashboard, ' +
+          'scores, attendance and pathway from their own account.',
+      },
+    },
+    {
+      name: 'hideFinancials',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description:
+          'Hide fees and payments from this archer. Use when a guardian handles the money — ' +
+          'the guardian still sees everything.',
+      },
+    },
+    {
       name: 'setupComplete',
       type: 'checkbox',
       defaultValue: false,

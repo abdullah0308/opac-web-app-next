@@ -1,4 +1,4 @@
-import { getCurrentUserId } from '@/lib/auth'
+import { getViewContext } from '@/lib/viewer'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
@@ -7,8 +7,9 @@ import { ScreenHeader } from '@/components/ui/opac'
 export const metadata = { title: 'Pathway — OPAC' }
 
 export default async function PathwayPage() {
-  const userId = await getCurrentUserId()
-  if (!userId) redirect('/login')
+  const ctx = await getViewContext()
+  if (!ctx) redirect('/login')
+  const userId = ctx.subjectId
 
   const payload = await getPayload({ config })
   const user = await payload.findByID({ collection: 'users', id: userId }).catch(() => null)
@@ -53,10 +54,10 @@ export default async function PathwayPage() {
     <>
       <ScreenHeader title="Pathway" />
 
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-5 flex flex-col gap-4 stagger">
         {/* Current stage card */}
         {archerPathway ? (
-          <div className="bg-white rounded-[20px] p-5 border border-opac-border border-l-[4px] border-l-opac-gold shadow-card">
+          <div className="glass-card rounded-[20px] p-5 border-l-[4px] border-l-opac-gold">
             <p className="font-body text-[11px] font-semibold text-opac-gold uppercase tracking-[0.07em] mb-1">Current Stage</p>
             <p className="font-display text-[22px] text-opac-ink mb-3">{currentStageName}</p>
             <div className="flex items-center gap-3 mb-2">
@@ -78,7 +79,7 @@ export default async function PathwayPage() {
             )}
           </div>
         ) : (
-          <div className="bg-white rounded-[16px] p-6 border border-opac-border text-center">
+          <div className="glass-card rounded-[16px] p-6 text-center">
             <p className="font-body text-[15px] text-opac-ink-60">No pathway assigned yet. Contact your coach.</p>
           </div>
         )}
@@ -98,7 +99,7 @@ export default async function PathwayPage() {
                     className={`rounded-[14px] px-4 py-3.5 border ${
                       isCurrent
                         ? 'bg-opac-green-light border-opac-green'
-                        : 'bg-white border-opac-border'
+                        : 'glass-card border-transparent'
                     }`}>
                     <div className="flex items-center justify-between">
                       <p className={`font-body text-[14px] font-semibold ${isCurrent ? 'text-opac-green' : 'text-opac-ink'}`}>

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { guardMaintenanceRoute } from '@/lib/devGuard'
 
 /**
  * GET /api/seed-attendance
@@ -44,7 +45,10 @@ const SCORE_DATA: Record<string, number[]> = {
   JD0055: [578, 591, 604, 597, 615, 622],
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const denied = guardMaintenanceRoute(req)
+  if (denied) return denied
+
   try {
     const payload = await getPayload({ config })
     const results: Record<string, unknown> = {}

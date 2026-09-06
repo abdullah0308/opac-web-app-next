@@ -136,7 +136,7 @@ export default function SetupStep2Client() {
         {error && <p className="font-body text-[13px] text-opac-error">{error}</p>}
 
         <button type="submit" disabled={loading || !termsChecked}
-          className="w-full h-[52px] rounded-[12px] bg-opac-green hover:bg-[#1A5233] text-white font-body text-[15px] font-semibold transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed">
+          className="w-full h-[52px] rounded-[12px] glass-green text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[15px] font-semibold transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed">
           {loading ? 'Setting up your profile…' : 'Complete Setup 🏹'}
         </button>
       </form>

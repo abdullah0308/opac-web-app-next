@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { getCurrentUserId } from '@/lib/auth'
+import { getCurrentUserId, getUserRoles } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId()
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const roles = await getUserRoles()
+    if (!roles.includes('admin')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const { archerId, description, amount, dueDate } = await req.json()
     if (!archerId || !amount || !dueDate) {
@@ -37,6 +41,10 @@ export async function PATCH(req: NextRequest) {
   try {
     const userId = await getCurrentUserId()
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const roles = await getUserRoles()
+    if (!roles.includes('admin')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const { paymentId, status } = await req.json()
     if (!paymentId || !status) {

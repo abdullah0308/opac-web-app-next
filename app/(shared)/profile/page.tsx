@@ -25,9 +25,9 @@ export default async function ProfilePage() {
     <>
       <ScreenHeader title="Profile" />
 
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-5 flex flex-col gap-4 stagger">
         {/* Avatar & name */}
-        <div className="bg-white rounded-[20px] p-6 border border-opac-border flex flex-col items-center gap-3">
+        <div className="glass-card rounded-[20px] p-6 flex flex-col items-center gap-3">
           <AvatarUpload currentUrl={user.avatarUrl as string | undefined} name={displayName} />
           <div className="text-center">
             <p className="font-display text-[22px] text-opac-ink">{displayName}</p>
@@ -43,7 +43,7 @@ export default async function ProfilePage() {
         </div>
 
         {/* Details */}
-        <div className="bg-white rounded-[16px] border border-opac-border divide-y divide-opac-border">
+        <div className="glass-card rounded-[16px] divide-y divide-opac-border">
           {[
             { label: 'Bow type', value: user.bowType as string ?? '—' },
             { label: 'Gender', value: user.gender as string ?? '—' },
@@ -65,7 +65,7 @@ export default async function ProfilePage() {
 
         {/* Messages link — only for archers */}
         {roles.includes('archer') && (
-          <a href="/messages" className="bg-white rounded-[16px] border border-opac-border flex items-center justify-between px-4 py-3.5">
+          <a href="/messages" className="glass-card glass-interactive rounded-[16px] flex items-center justify-between px-4 py-3.5">
             <span className="font-body text-[14px] text-opac-ink-60">Direct Messages</span>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M6 4L10 8L6 12" stroke="#9CA3AF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />

@@ -25,9 +25,9 @@ export function AdminAccessButton({ pressed = false, className = '' }: AdminAcce
   return (
     <Link href="/admin/dashboard">
       <button
-        className={`w-9 h-9 rounded-[10px] ${
-          pressed ? 'bg-opac-green-light' : 'bg-opac-surface'
-        } border border-opac-border flex items-center justify-center cursor-pointer flex-shrink-0 transition-colors duration-150 p-0 ${className}`}
+        className={`glass-well w-9 h-9 rounded-[11px] ${
+          pressed ? '!bg-[rgba(212,234,217,0.78)]' : ''
+        } flex items-center justify-center cursor-pointer flex-shrink-0 transition-transform duration-200 ease-glide hover:scale-105 active:scale-95 p-0 ${className}`}
         aria-label="Admin panel"
       >
         <GearIcon />

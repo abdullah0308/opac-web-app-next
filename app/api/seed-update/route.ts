@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { guardMaintenanceRoute } from '@/lib/devGuard'
 
 /**
  * GET /api/seed-update
  * Creates AM0032 if missing. Safe to run multiple times.
  */
-export async function GET() {
+export async function GET(req: Request) {
+  const denied = guardMaintenanceRoute(req)
+  if (denied) return denied
+
   try {
     const payload = await getPayload({ config })
     const results: Record<string, string> = {}

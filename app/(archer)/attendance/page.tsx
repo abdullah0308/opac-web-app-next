@@ -1,4 +1,4 @@
-import { getCurrentUserId } from '@/lib/auth'
+import { getViewContext } from '@/lib/viewer'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
@@ -7,8 +7,9 @@ import { ScreenHeader } from '@/components/ui/opac'
 export const metadata = { title: 'Attendance — OPAC' }
 
 export default async function AttendancePage() {
-  const userId = await getCurrentUserId()
-  if (!userId) redirect('/login')
+  const ctx = await getViewContext()
+  if (!ctx) redirect('/login')
+  const userId = ctx.subjectId
 
   const payload = await getPayload({ config })
   const user = await payload.findByID({ collection: 'users', id: userId }).catch(() => null)
@@ -39,20 +40,20 @@ export default async function AttendancePage() {
     <>
       <ScreenHeader title="Attendance" />
 
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-5 flex flex-col gap-4 stagger">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2.5">
-          <div className="bg-white rounded-[14px] p-3.5 border border-opac-border text-center">
+          <div className="glass-card rounded-[14px] p-3.5 text-center">
             <p className="font-mono text-[24px] font-semibold text-opac-green">{presentCount}</p>
             <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Sessions</p>
           </div>
-          <div className="bg-white rounded-[14px] p-3.5 border border-opac-border text-center">
+          <div className="glass-card rounded-[14px] p-3.5 text-center">
             <p className="font-mono text-[24px] font-semibold text-opac-ink">
               {totalSessions > 0 ? Math.round((presentCount / totalSessions) * 100) : 0}%
             </p>
             <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Rate</p>
           </div>
-          <div className="bg-white rounded-[14px] p-3.5 border border-opac-border text-center">
+          <div className="glass-card rounded-[14px] p-3.5 text-center">
             <p className="font-mono text-[24px] font-semibold text-opac-ink">{totalSessions}</p>
             <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Total</p>
           </div>
@@ -64,7 +65,7 @@ export default async function AttendancePage() {
             Last 30 days
           </p>
           {records.length === 0 ? (
-            <div className="bg-white rounded-[16px] p-8 border border-opac-border text-center">
+            <div className="glass-card rounded-[16px] p-8 text-center">
               <p className="font-body text-[15px] text-opac-ink-60">No attendance records yet.</p>
             </div>
           ) : (
@@ -84,7 +85,7 @@ export default async function AttendancePage() {
                     : 'Session'
 
                 return (
-                  <div key={record.id} className="bg-white rounded-[14px] px-4 py-3 border border-opac-border flex items-center gap-3">
+                  <div key={record.id} className="glass-card rounded-[14px] px-4 py-3 flex items-center gap-3">
                     <div className={`w-2 h-2 rounded-full flex-shrink-0 ${record.status === 'present' ? 'bg-opac-success' : 'bg-opac-error'}`} />
                     <div className="flex-1 min-w-0">
                       <p className="font-body text-[14px] font-semibold text-opac-ink">{sessionName}</p>

@@ -42,8 +42,8 @@ export default async function AdminMessageThreadPage({ params }: { params: Promi
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <div className="bg-white border-b border-opac-border px-5 py-3 flex items-center gap-3 flex-shrink-0">
-        <a href="/admin/messages" className="w-8 h-8 rounded-[8px] bg-opac-surface border border-opac-border flex items-center justify-center">
+      <div className="glass glass-bar sticky top-0 z-30 border-x-0 border-t-0 px-5 py-3 flex items-center gap-3 flex-shrink-0">
+        <a href="/admin/messages" className="w-8 h-8 rounded-[8px] glass-well flex items-center justify-center">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 12L6 8L10 4" stroke="#1A2B1A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>

@@ -13,6 +13,7 @@ import { Payments }      from './collections/Payments'
 import { Pathways }      from './collections/Pathways'
 import { ArcherPathways } from './collections/ArcherPathways'
 import { Clans }         from './collections/Clans'
+import { PointsEntries } from './collections/PointsEntries'
 import { ForumPosts }    from './collections/ForumPosts'
 import { Messages }      from './collections/Messages'
 import { FaceData }      from './collections/FaceData'
@@ -40,6 +41,7 @@ export default buildConfig({
     Pathways,
     ArcherPathways,
     Clans,
+    PointsEntries,
     ForumPosts,
     Messages,
     FaceData,

@@ -98,15 +98,15 @@ export function PWAInstallPrompt() {
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/48 z-40" onClick={dismiss} />
+      <div className="fixed inset-0 z-40 bg-[rgba(15,51,32,0.34)] backdrop-blur-sm anim-fade" onClick={dismiss} />
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 max-w-[390px] mx-auto bg-white rounded-t-[24px] px-7 pt-3 pb-10 shadow-[0_-8px_40px_rgba(0,0,0,0.18)]">
+      <div className="glass fixed bottom-0 left-0 right-0 z-50 max-w-[390px] mx-auto rounded-t-[30px] px-7 pt-3 pb-10 shadow-[0_-10px_48px_-8px_rgba(15,51,32,0.32)] anim-rise">
         <div className="flex justify-center mb-5">
-          <div className="w-10 h-1 rounded-full bg-[#E0E8E0]" />
+          <div className="w-10 h-1 rounded-full bg-[rgba(26,26,24,0.15)]" />
         </div>
 
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-[14px] bg-opac-green flex items-center justify-center shrink-0">
+          <div className="glass-green w-12 h-12 rounded-[15px] flex items-center justify-center shrink-0">
             <span className="text-white font-bold text-xl font-display">O</span>
           </div>
           <span className="font-display text-[18px] text-opac-ink">OPAC</span>
@@ -163,7 +163,7 @@ export function PWAInstallPrompt() {
         {ios ? (
           <button
             onClick={dismiss}
-            className="w-full py-4 rounded-[14px] bg-opac-green text-white font-semibold text-[15px] border-none cursor-pointer"
+            className="glass-green sheen relative overflow-hidden w-full py-4 rounded-[15px] text-white font-semibold text-[15px] cursor-pointer transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:scale-[0.985]"
           >
             Got it
           </button>
@@ -171,7 +171,7 @@ export function PWAInstallPrompt() {
           <>
             <button
               onClick={handleInstall}
-              className="w-full py-4 rounded-[14px] bg-opac-green text-white font-semibold text-[15px] border-none cursor-pointer"
+              className="glass-green sheen relative overflow-hidden w-full py-4 rounded-[15px] text-white font-semibold text-[15px] cursor-pointer transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:scale-[0.985]"
             >
               Add to Home Screen
             </button>

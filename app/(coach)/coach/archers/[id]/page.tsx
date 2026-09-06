@@ -3,6 +3,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { redirect, notFound } from 'next/navigation'
 import { ScreenHeader } from '@/components/ui/opac'
+import { getArcherPoints } from '@/lib/leaderboard'
+import CoachToolsClient, { type StageOption, type SharedScore } from './CoachToolsClient'
 
 export const metadata = { title: 'Archer Detail — OPAC Coach' }
 
@@ -50,6 +52,80 @@ export default async function ArcherDetailPage({ params }: { params: Promise<{ i
     }),
   ])
   const presentCount = attResult.totalDocs
+
+  // ── Coach tools data ────────────────────────────────────────────────────
+  const [stagesRes, pathwayRes, sharedRes, pointsSummary] = await Promise.all([
+    payload.find({ collection: 'pathways', sort: 'stageNumber', limit: 50 }),
+    payload.find({
+      collection: 'archer-pathways',
+      where: { archer: { equals: id } },
+      limit: 1,
+      depth: 1,
+    }),
+    payload.find({
+      collection: 'scores',
+      where: { and: [{ archer: { equals: id } }, { sharedWith: { contains: userId } }] },
+      sort: '-date',
+      limit: 20,
+      depth: 0,
+    }),
+    getArcherPoints(id),
+  ])
+
+  const stages: StageOption[] = (
+    stagesRes.docs as unknown as {
+      id: string | number
+      stageName?: string
+      stageNumber?: number
+      requirements?: { requirement?: string }[]
+    }[]
+  ).map((st) => ({
+    id: String(st.id),
+    name: st.stageName ?? `Stage ${st.stageNumber ?? ''}`.trim(),
+    requirements: Array.isArray(st.requirements)
+      ? st.requirements.map((r) => r.requirement ?? '').filter(Boolean)
+      : [],
+  }))
+
+  const pathwayDoc = pathwayRes.docs[0] as unknown as
+    | {
+        pathwayStage?: { id?: string | number } | string
+        coachNotes?: string
+        completedRequirements?: { completed?: boolean }[]
+      }
+    | undefined
+
+  const currentStageId = pathwayDoc?.pathwayStage
+    ? typeof pathwayDoc.pathwayStage === 'object'
+      ? String((pathwayDoc.pathwayStage as { id?: string | number }).id)
+      : String(pathwayDoc.pathwayStage)
+    : null
+
+  const currentCompleted = Array.isArray(pathwayDoc?.completedRequirements)
+    ? pathwayDoc.completedRequirements.map((r) => Boolean(r.completed))
+    : []
+
+  const sharedScores: SharedScore[] = (
+    sharedRes.docs as unknown as {
+      id: string | number
+      points?: number
+      maxPoints?: number
+      date?: string
+      scoringFormat?: string
+      notes?: string
+      verified?: boolean
+      coachFeedback?: string
+    }[]
+  ).map((sc) => ({
+    id: String(sc.id),
+    points: sc.points ?? 0,
+    maxPoints: sc.maxPoints,
+    date: sc.date ?? new Date().toISOString(),
+    scoringFormat: sc.scoringFormat,
+    notes: sc.notes,
+    verified: Boolean(sc.verified),
+    coachFeedback: sc.coachFeedback,
+  }))
   type PaymentDoc = { amount?: number; description?: string }
   const pendingPayments = paymentsResult.docs as unknown as PaymentDoc[]
   const overdueTotal = pendingPayments.reduce((s, p) => s + (p.amount ?? 0), 0)
@@ -68,9 +144,9 @@ export default async function ArcherDetailPage({ params }: { params: Promise<{ i
     <>
       <ScreenHeader title={name} showBack backHref="/coach/archers" />
 
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-5 flex flex-col gap-4 stagger">
         {/* Archer card */}
-        <div className="bg-white rounded-[20px] p-5 border border-opac-border flex items-center gap-4">
+        <div className="glass-card rounded-[20px] p-5 flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
             <span className="font-display text-[20px] text-opac-green">{initials}</span>
           </div>
@@ -98,17 +174,17 @@ export default async function ArcherDetailPage({ params }: { params: Promise<{ i
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2.5">
-          <div className="bg-white rounded-[14px] p-3 border border-opac-border text-center">
+          <div className="glass-card rounded-[14px] p-3 text-center">
             <p className="font-mono text-[22px] font-semibold text-opac-green">{best > 0 ? best : '—'}</p>
-            <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Best</p>
+            <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Best round</p>
           </div>
-          <div className="bg-white rounded-[14px] p-3 border border-opac-border text-center">
+          <div className="glass-card rounded-[14px] p-3 text-center">
             <p className="font-mono text-[22px] font-semibold text-opac-ink">{avg > 0 ? avg : '—'}</p>
             <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Avg</p>
           </div>
-          <div className="bg-white rounded-[14px] p-3 border border-opac-border text-center">
-            <p className="font-mono text-[22px] font-semibold text-opac-ink">{presentCount}</p>
-            <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Sessions</p>
+          <div className="glass-card rounded-[14px] p-3 text-center">
+            <p className="font-mono text-[22px] font-semibold text-opac-gold">{pointsSummary.total}</p>
+            <p className="font-body text-[11px] text-opac-ink-60 mt-0.5">Points</p>
           </div>
         </div>
 
@@ -125,6 +201,17 @@ export default async function ArcherDetailPage({ params }: { params: Promise<{ i
           </div>
         )}
 
+        {/* Coach tools — pathway + shared rounds */}
+        <CoachToolsClient
+          archerId={String(id)}
+          archerName={name}
+          stages={stages}
+          currentStageId={currentStageId}
+          currentCompleted={currentCompleted}
+          currentNotes={pathwayDoc?.coachNotes ?? ''}
+          sharedScores={sharedScores}
+        />
+
         {/* Score history */}
         {scores.length > 0 && (
           <div>
@@ -135,7 +222,7 @@ export default async function ArcherDetailPage({ params }: { params: Promise<{ i
                   ? new Date(score.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
                   : '—'
                 return (
-                  <div key={score.id} className="bg-white rounded-[12px] px-4 py-3 border border-opac-border flex items-center">
+                  <div key={score.id} className="glass-card rounded-[12px] px-4 py-3 flex items-center">
                     <div className="flex-1">
                       <p className="font-body text-[13px] text-opac-ink-60">{score.roundType ?? 'Training'} · {dateStr}</p>
                     </div>

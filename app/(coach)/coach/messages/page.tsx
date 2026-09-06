@@ -75,14 +75,14 @@ export default async function CoachMessagesPage() {
         title="Messages"
         right={
           <div className="relative group">
-            <button className="h-9 px-4 rounded-[10px] bg-opac-green text-white font-body text-[13px] font-semibold flex items-center gap-1.5">
+            <button className="h-9 px-4 glass-green rounded-[11px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[13px] font-semibold flex items-center gap-1.5">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M7 2V12M2 7H12" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
               New DM
             </button>
             {/* Dropdown of archers */}
-            <div className="absolute right-0 top-10 z-20 bg-white border border-opac-border rounded-[12px] shadow-lg w-52 max-h-64 overflow-y-auto hidden group-focus-within:block">
+            <div className="absolute right-0 top-10 z-20 glass-card rounded-[12px] shadow-lg w-52 max-h-64 overflow-y-auto hidden group-focus-within:block">
               {archers.map((a) => (
                 <Link
                   key={String(a.id)}
@@ -109,7 +109,7 @@ export default async function CoachMessagesPage() {
         {/* Quick-pick archer list if no conversations */}
         {convList.length === 0 && (
           <>
-            <div className="bg-white rounded-[16px] p-5 border border-opac-border text-center mb-2">
+            <div className="glass-card rounded-[16px] p-5 text-center mb-2">
               <p className="font-body text-[15px] text-opac-ink-60 mb-3">No messages yet. Start a conversation.</p>
             </div>
             <p className="font-body text-[12px] font-semibold text-opac-ink-30 uppercase tracking-wider px-1 mb-1">All Archers</p>
@@ -119,7 +119,7 @@ export default async function CoachMessagesPage() {
                 <Link
                   key={String(a.id)}
                   href={`/coach/messages/${String(a.id)}`}
-                  className="bg-white rounded-[14px] px-4 py-3.5 border border-opac-border flex items-center gap-3"
+                  className="glass-card rounded-[14px] px-4 py-3.5 flex items-center gap-3"
                 >
                   <div className="w-11 h-11 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
                     <span className="font-display text-[13px] text-opac-green">{initials}</span>
@@ -146,7 +146,7 @@ export default async function CoachMessagesPage() {
 
           return (
             <Link key={partnerId} href={`/coach/messages/${partnerId}`}
-              className="bg-white rounded-[14px] px-4 py-3.5 border border-opac-border flex items-center gap-3">
+              className="glass-card rounded-[14px] px-4 py-3.5 flex items-center gap-3">
               <div className="w-11 h-11 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
                 <span className="font-display text-[13px] text-opac-green">{initials}</span>
               </div>

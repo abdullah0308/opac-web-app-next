@@ -22,7 +22,7 @@ export default function AttendanceSettingsClient({ faceEnabled: initial }: { fac
   }
 
   return (
-    <div className="bg-white rounded-[16px] p-5 border border-opac-border">
+    <div className="glass-card rounded-[16px] p-5">
       <p className="font-body text-[11px] font-semibold text-opac-ink-30 uppercase tracking-[0.08em] mb-4">
         System Settings
       </p>

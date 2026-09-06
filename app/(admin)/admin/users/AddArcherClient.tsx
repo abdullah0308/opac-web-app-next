@@ -56,18 +56,18 @@ export function AddArcherClient({ clans }: { clans: Clan[] }) {
     }
   }
 
-  const field = 'w-full h-11 rounded-[10px] border border-opac-border bg-opac-surface px-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green'
+  const field = 'w-full h-11 rounded-[10px] glass-well px-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green'
 
   return (
     <>
       <button onClick={() => setOpen(true)}
-        className="h-9 px-4 rounded-[10px] bg-opac-green text-white font-body text-[13px] font-semibold flex items-center gap-1.5">
+        className="h-9 px-4 glass-green rounded-[11px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[13px] font-semibold flex items-center gap-1.5">
         <span className="text-[16px] leading-none">+</span> Add Archer
       </button>
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-0 sm:px-4">
-          <div className="bg-white w-full sm:max-w-md rounded-t-[24px] sm:rounded-[20px] p-6 flex flex-col gap-4 max-h-[92dvh] overflow-y-auto">
+          <div className="glass w-full sm:max-w-md rounded-t-[28px] sm:rounded-[24px] shadow-card-lg p-6 flex flex-col gap-4 max-h-[92dvh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <p className="font-display text-[20px] text-opac-ink">Add Archer</p>
               <button onClick={() => setOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-opac-surface text-opac-ink-60">✕</button>
@@ -141,7 +141,7 @@ export function AddArcherClient({ clans }: { clans: Clan[] }) {
                   {(['archer', 'coach', 'admin'] as const).map(role => (
                     <button key={role} type="button" onClick={() => toggle(role)}
                       className={`flex-1 h-9 rounded-[8px] border font-body text-[13px] font-semibold capitalize transition-all ${
-                        form.roles.includes(role) ? 'bg-opac-green text-white border-opac-green' : 'bg-white text-opac-ink-60 border-opac-border'
+                        form.roles.includes(role) ? 'bg-opac-green text-white border-opac-green' : 'glass-well text-opac-ink-60 border-transparent'
                       }`}>
                       {role}
                     </button>
@@ -152,7 +152,7 @@ export function AddArcherClient({ clans }: { clans: Clan[] }) {
               {error && <p className="font-body text-[13px] text-red-500">{error}</p>}
 
               <button type="submit" disabled={loading}
-                className="w-full h-12 rounded-[12px] bg-opac-green text-white font-body text-[15px] font-semibold disabled:opacity-50 mt-1">
+                className="w-full h-12 glass-green rounded-[13px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[15px] font-semibold disabled:opacity-50 mt-1">
                 {loading ? 'Creating…' : 'Create Archer'}
               </button>
             </form>

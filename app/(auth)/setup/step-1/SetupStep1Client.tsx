@@ -58,7 +58,7 @@ export default function SetupStep1Client() {
           <label htmlFor="phone" className="font-body text-[13px] font-semibold text-opac-ink">
             Phone number
           </label>
-          <div className="flex h-[52px] rounded-[8px] border border-opac-border bg-opac-bg overflow-hidden">
+          <div className="flex h-[52px] glass-well rounded-[10px] overflow-hidden">
             <div className="flex items-center gap-1.5 px-3.5 border-r border-opac-border flex-shrink-0">
               <span className="text-[20px] leading-none">🇲🇺</span>
               <span className="font-body text-[14px] font-semibold text-opac-ink">+230</span>
@@ -83,7 +83,7 @@ export default function SetupStep1Client() {
             type="date"
             value={dob}
             onChange={(e) => setDob(e.target.value)}
-            className="h-[52px] rounded-[8px] border border-opac-border bg-opac-bg px-4 font-body text-[15px] text-opac-ink outline-none"
+            className="h-[52px] glass-well rounded-[10px] px-4 font-body text-[15px] text-opac-ink outline-none"
           />
         </div>
 
@@ -91,7 +91,7 @@ export default function SetupStep1Client() {
 
         <button
           type="submit"
-          className="mt-4 w-full h-[52px] rounded-[12px] bg-opac-green hover:bg-[#1A5233] text-white font-body text-[15px] font-semibold transition-colors duration-150"
+          className="mt-4 w-full h-[52px] rounded-[12px] glass-green text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[15px] font-semibold transition-colors duration-150"
         >
           Continue →
         </button>

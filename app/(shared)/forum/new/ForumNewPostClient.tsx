@@ -41,10 +41,10 @@ export default function ForumNewPostClient({ authorId }: Props) {
   return (
     <>
       {/* Header */}
-      <div className="bg-white border-b border-opac-border px-5 py-3 flex items-center gap-3">
+      <div className="glass glass-bar sticky top-0 z-30 border-x-0 border-t-0 px-5 py-3 flex items-center gap-3">
         <button
           onClick={() => router.back()}
-          className="w-9 h-9 rounded-[10px] bg-opac-surface border border-opac-border flex items-center justify-center"
+          className="w-9 h-9 rounded-[10px] glass-well flex items-center justify-center"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path d="M11 14L6 9L11 4" stroke="#1A2B1A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -61,7 +61,7 @@ export default function ForumNewPostClient({ authorId }: Props) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="What's on your mind?"
-            className="w-full rounded-[10px] border border-opac-border bg-white px-3.5 py-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
+            className="w-full rounded-[10px] glass-card px-3.5 py-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green"
           />
         </div>
 
@@ -72,7 +72,7 @@ export default function ForumNewPostClient({ authorId }: Props) {
             onChange={(e) => setBody(e.target.value)}
             placeholder="Share details, questions, or updates with the club…"
             rows={6}
-            className="w-full rounded-[10px] border border-opac-border bg-white px-3.5 py-3 font-body text-[14px] text-opac-ink resize-none focus:outline-none focus:border-opac-green"
+            className="w-full rounded-[10px] glass-card px-3.5 py-3 font-body text-[14px] text-opac-ink resize-none focus:outline-none focus:border-opac-green"
           />
         </div>
 
@@ -81,7 +81,7 @@ export default function ForumNewPostClient({ authorId }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full h-[52px] rounded-[12px] bg-opac-green text-white font-body text-[15px] font-semibold hover:bg-[#1A5233] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          className="w-full h-[52px] glass-green rounded-[13px] text-white transition-transform duration-300 ease-glide hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.985] font-body text-[15px] font-semibold hover:bg-[#1A5233] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? 'Posting…' : 'Post to Forum'}
         </button>

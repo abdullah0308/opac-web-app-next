@@ -1,15 +1,19 @@
 import type { ReactNode } from 'react'
+import { Ambient } from '@/components/ui/opac/Ambient'
 
 /**
- * Auth layout — centred mobile frame, no bottom nav, gradient background.
+ * Auth layout — a single frosted sheet floating on the ambient aurora.
  * Used by: /login, /forgot-password, /setup/step-1, /setup/step-2
  */
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-opac-green-light via-[#EAF4EC] to-opac-bg flex items-end sm:items-center justify-center sm:p-8">
-      <div className="w-full max-w-mobile bg-white rounded-t-[32px] sm:rounded-[32px] shadow-card-lg min-h-[70vh] sm:min-h-0 overflow-hidden">
-        {children}
+    <>
+      <Ambient />
+      <div className="min-h-dvh flex items-end sm:items-center justify-center sm:p-8">
+        <div className="glass w-full max-w-mobile rounded-t-[34px] sm:rounded-[34px] shadow-card-lg min-h-[70vh] sm:min-h-0 overflow-hidden animate-rise">
+          {children}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

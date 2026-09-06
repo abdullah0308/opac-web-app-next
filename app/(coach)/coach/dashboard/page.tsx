@@ -4,6 +4,7 @@ import config from '@payload-config'
 import { redirect } from 'next/navigation'
 import { ScreenHeader } from '@/components/ui/opac'
 import Link from 'next/link'
+import { CountUp } from '@/components/ui/opac/CountUp'
 
 export const metadata = { title: 'Coach Dashboard — OPAC' }
 
@@ -64,21 +65,21 @@ export default async function CoachDashboardPage() {
     <>
       <ScreenHeader title="Coach" subtitle={todayFormatted} />
 
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-5 flex flex-col gap-4 stagger">
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white rounded-[16px] p-4 border border-opac-border">
-            <p className="font-mono text-[32px] font-semibold text-opac-green">{presentToday}</p>
+          <div className="glass-card rounded-[16px] p-4">
+            <CountUp value={presentToday} className="font-mono text-[32px] font-semibold text-opac-green block" />
             <p className="font-body text-[13px] text-opac-ink-60 mt-0.5">Present today</p>
           </div>
-          <div className="bg-white rounded-[16px] p-4 border border-opac-border">
-            <p className="font-mono text-[32px] font-semibold text-opac-ink">{totalArchers}</p>
+          <div className="glass-card rounded-[16px] p-4">
+            <CountUp value={totalArchers} className="font-mono text-[32px] font-semibold text-opac-ink block" />
             <p className="font-body text-[13px] text-opac-ink-60 mt-0.5">Active archers</p>
           </div>
         </div>
 
         {overdueCount > 0 && (
-          <div className="bg-opac-gold-light rounded-[12px] px-4 py-3 border border-opac-border border-l-[4px] border-l-opac-gold flex items-center justify-between">
+          <div className="glass-card rounded-[14px] px-4 py-3 border-l-[3px] border-l-opac-gold bg-[rgba(253,244,220,0.62)] flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-[16px]">⚠️</span>
               <p className="font-body text-[14px] font-semibold text-opac-gold">
@@ -95,7 +96,7 @@ export default async function CoachDashboardPage() {
             { href: '/coach/attendance', label: 'Attendance', emoji: '📋' },
           ].map(({ href, label, emoji }) => (
             <Link key={href} href={href}
-              className="bg-white rounded-[14px] p-4 border border-opac-border flex items-center gap-3">
+              className="glass-card rounded-[14px] p-4 flex items-center gap-3">
               <span className="text-[22px]">{emoji}</span>
               <span className="font-body text-[14px] font-semibold text-opac-ink">{label}</span>
             </Link>
@@ -121,7 +122,7 @@ export default async function CoachDashboardPage() {
                   : ''
 
                 return (
-                  <div key={score.id} className="bg-white rounded-[14px] px-4 py-3 border border-opac-border flex items-center gap-3">
+                  <div key={score.id} className="glass-card rounded-[14px] px-4 py-3 flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-opac-green-light flex items-center justify-center flex-shrink-0">
                       <span className="font-display text-[12px] text-opac-green">{initials}</span>
                     </div>
