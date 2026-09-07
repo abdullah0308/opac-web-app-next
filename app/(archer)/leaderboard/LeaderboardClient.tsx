@@ -196,6 +196,45 @@ export default function LeaderboardClient({
                           ? c.motto
                           : `${c.members} member${c.members === 1 ? '' : 's'}`}
                       </p>
+                      {(c.leader || c.coLeader) && (
+                        <div className="flex items-center gap-1.5 mt-1.5 min-w-0">
+                          {c.leader && (
+                            <span className="inline-flex items-center gap-1.5 min-w-0">
+                              <Avatar
+                                name={c.leader.name}
+                                src={c.leader.avatarUrl}
+                                size={18}
+                                ring={c.colour}
+                              />
+                              <span className="font-body text-[11.5px] text-opac-ink truncate">
+                                {c.leader.name.split(' ')[0]}
+                                <span className="text-opac-gold font-semibold ml-1">
+                                  Leader
+                                </span>
+                              </span>
+                            </span>
+                          )}
+                          {c.leader && c.coLeader && (
+                            <span
+                              className="w-px h-3 bg-[rgba(26,26,24,0.14)] flex-shrink-0"
+                              aria-hidden="true"
+                            />
+                          )}
+                          {c.coLeader && (
+                            <span className="inline-flex items-center gap-1.5 min-w-0">
+                              <Avatar
+                                name={c.coLeader.name}
+                                src={c.coLeader.avatarUrl}
+                                size={18}
+                              />
+                              <span className="font-body text-[11.5px] text-opac-ink-60 truncate">
+                                {c.coLeader.name.split(' ')[0]}
+                                <span className="font-semibold ml-1">Co</span>
+                              </span>
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="text-right flex-shrink-0">
                       <p className="font-mono text-[20px] font-semibold text-opac-green leading-none">

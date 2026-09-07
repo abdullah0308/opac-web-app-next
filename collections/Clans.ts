@@ -33,6 +33,22 @@ export const Clans: CollectionConfig = {
       type: 'text',
     },
     {
+      name: 'leader',
+      type: 'relationship',
+      relationTo: 'users',
+      admin: {
+        description: 'Clan leader. Shown on the clan standings.',
+      },
+    },
+    {
+      name: 'coLeader',
+      type: 'relationship',
+      relationTo: 'users',
+      admin: {
+        description: 'Second in command, stands in for the leader.',
+      },
+    },
+    {
       name: 'points',
       type: 'number',
       defaultValue: 0,

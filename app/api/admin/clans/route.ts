@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getCurrentUserId, getUserRoles } from '@/lib/auth'
+import { relId } from '@/lib/relId'
 
 async function requireAdmin() {
   const userId = await getCurrentUserId()
@@ -16,9 +17,15 @@ export async function POST(req: NextRequest) {
   if (!adminId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   try {
-    const { name, colour, logoUrl, motto } = await req.json()
+    const { name, colour, logoUrl, motto, leader, coLeader } = await req.json()
     if (!name?.trim()) {
       return NextResponse.json({ error: 'Give the clan a name.' }, { status: 400 })
+    }
+    if (leader && coLeader && String(leader) === String(coLeader)) {
+      return NextResponse.json(
+        { error: 'The leader and co-leader must be two different people.' },
+        { status: 400 },
+      )
     }
 
     const payload = await getPayload({ config })
@@ -34,9 +41,11 @@ export async function POST(req: NextRequest) {
         colour: colour || '#2E7D4F',
         logoUrl: logoUrl || null,
         motto: motto || null,
+        leader: relId(leader),
+        coLeader: relId(coLeader),
         points: 0,
         season: settings?.season ?? String(new Date().getFullYear()),
-        createdBy: adminId,
+        createdBy: relId(adminId),
       },
     })
     return NextResponse.json({ success: true, id: created.id })
@@ -52,7 +61,7 @@ export async function PATCH(req: NextRequest) {
   if (!adminId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   try {
-    const { clanId, name, colour, logoUrl, motto } = await req.json()
+    const { clanId, name, colour, logoUrl, motto, leader, coLeader } = await req.json()
     if (!clanId) return NextResponse.json({ error: 'clanId required' }, { status: 400 })
 
     const data: Record<string, unknown> = {}
@@ -60,6 +69,15 @@ export async function PATCH(req: NextRequest) {
     if (colour !== undefined) data.colour = colour
     if (logoUrl !== undefined) data.logoUrl = logoUrl || null
     if (motto !== undefined) data.motto = motto || null
+    if (leader !== undefined) data.leader = relId(leader)
+    if (coLeader !== undefined) data.coLeader = relId(coLeader)
+
+    if (data.leader && data.coLeader && String(data.leader) === String(data.coLeader)) {
+      return NextResponse.json(
+        { error: 'The leader and co-leader must be two different people.' },
+        { status: 400 },
+      )
+    }
 
     const payload = await getPayload({ config })
     await payload.update({

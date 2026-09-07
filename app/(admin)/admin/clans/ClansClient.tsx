@@ -13,6 +13,17 @@ export interface ClanRow {
   motto?: string
   members: number
   points: number
+  leaderId: string | null
+  leaderName: string | null
+  coLeaderId: string | null
+  coLeaderName: string | null
+}
+
+export interface MemberOption {
+  id: string
+  name: string
+  archerCode?: string
+  clanId: string | null
 }
 
 const SWATCHES = [
@@ -26,7 +37,13 @@ const SWATCHES = [
   '#0E7490',
 ]
 
-export default function ClansClient({ clans }: { clans: ClanRow[] }) {
+export default function ClansClient({
+  clans,
+  members,
+}: {
+  clans: ClanRow[]
+  members: MemberOption[]
+}) {
   const router = useRouter()
   const [editing, setEditing] = useState<ClanRow | null>(null)
   const [creating, setCreating] = useState(false)
@@ -38,6 +55,8 @@ export default function ClansClient({ clans }: { clans: ClanRow[] }) {
   const [colour, setColour] = useState('#2E7D4F')
   const [motto, setMotto] = useState('')
   const [logoUrl, setLogoUrl] = useState<string | undefined>(undefined)
+  const [leader, setLeader] = useState('')
+  const [coLeader, setCoLeader] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
   const open = creating || editing !== null
@@ -49,6 +68,8 @@ export default function ClansClient({ clans }: { clans: ClanRow[] }) {
     setColour('#2E7D4F')
     setMotto('')
     setLogoUrl(undefined)
+    setLeader('')
+    setCoLeader('')
     setError('')
   }
 
@@ -59,6 +80,8 @@ export default function ClansClient({ clans }: { clans: ClanRow[] }) {
     setColour(c.colour)
     setMotto(c.motto ?? '')
     setLogoUrl(c.logoUrl)
+    setLeader(c.leaderId ?? '')
+    setCoLeader(c.coLeaderId ?? '')
     setError('')
   }
 
@@ -88,6 +111,9 @@ export default function ClansClient({ clans }: { clans: ClanRow[] }) {
 
   async function save() {
     if (!name.trim()) return setError('Give the clan a name.')
+    if (leader && coLeader && leader === coLeader) {
+      return setError('The leader and co-leader must be two different people.')
+    }
     setBusy(true)
     setError('')
     try {
@@ -100,6 +126,8 @@ export default function ClansClient({ clans }: { clans: ClanRow[] }) {
           colour,
           motto,
           logoUrl: logoUrl ?? null,
+          leader: leader || null,
+          coLeader: coLeader || null,
         }),
       })
       const data = await res.json()
@@ -134,6 +162,15 @@ export default function ClansClient({ clans }: { clans: ClanRow[] }) {
 
   const field =
     'glass-well w-full h-11 rounded-[11px] px-3 font-body text-[14px] text-opac-ink focus:outline-none focus:border-opac-green'
+
+  // This clan's own members first — that is who a leader almost always is.
+  const officerOptions = editing
+    ? [...members].sort((a, b) => {
+        const aMine = a.clanId === editing.id ? 0 : 1
+        const bMine = b.clanId === editing.id ? 0 : 1
+        return aMine - bMine || a.name.localeCompare(b.name)
+      })
+    : members
 
   return (
     <div className="p-6 flex flex-col gap-5 stagger">
@@ -198,6 +235,23 @@ export default function ClansClient({ clans }: { clans: ClanRow[] }) {
                 <p className="font-body text-[13px] text-opac-ink-60 truncate">
                   {c.motto || `${c.members} member${c.members === 1 ? '' : 's'}`}
                 </p>
+                {c.leaderName ? (
+                  <p className="font-body text-[12px] text-opac-ink-60 truncate mt-0.5">
+                    <span className="text-opac-gold font-semibold">Leader</span>{' '}
+                    {c.leaderName}
+                    {c.coLeaderName && (
+                      <>
+                        {' · '}
+                        <span className="text-opac-ink-30 font-semibold">Co</span>{' '}
+                        {c.coLeaderName}
+                      </>
+                    )}
+                  </p>
+                ) : (
+                  <p className="font-body text-[12px] text-opac-ink-30 mt-0.5">
+                    No leader set
+                  </p>
+                )}
               </div>
               <div className="text-right flex-shrink-0">
                 <p className="font-mono text-[19px] font-semibold text-opac-green leading-none">
@@ -316,6 +370,47 @@ export default function ClansClient({ clans }: { clans: ClanRow[] }) {
                   className={`${field} mt-1.5`}
                 />
               </label>
+
+              {/* Leadership. Members of this clan sort to the top, but anyone
+                  can be picked — a leader is sometimes assigned before the
+                  roster is filled in. */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className="font-body text-[12.5px] font-semibold text-opac-ink">
+                  Clan leader
+                  <select
+                    value={leader}
+                    onChange={(e) => setLeader(e.target.value)}
+                    className={`${field} mt-1.5`}
+                  >
+                    <option value="">Nobody yet</option>
+                    {officerOptions.map((m) => (
+                      <option key={m.id} value={m.id} disabled={m.id === coLeader}>
+                        {m.name}
+                        {m.archerCode ? ` (${m.archerCode})` : ''}
+                        {editing && m.clanId !== editing.id ? ' — other clan' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="font-body text-[12.5px] font-semibold text-opac-ink">
+                  Co-leader
+                  <select
+                    value={coLeader}
+                    onChange={(e) => setCoLeader(e.target.value)}
+                    className={`${field} mt-1.5`}
+                  >
+                    <option value="">Nobody yet</option>
+                    {officerOptions.map((m) => (
+                      <option key={m.id} value={m.id} disabled={m.id === leader}>
+                        {m.name}
+                        {m.archerCode ? ` (${m.archerCode})` : ''}
+                        {editing && m.clanId !== editing.id ? ' — other clan' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
 
               <div>
                 <p className="font-body text-[12.5px] font-semibold text-opac-ink mb-2">

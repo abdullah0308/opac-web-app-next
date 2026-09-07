@@ -281,7 +281,13 @@ export default async function DashboardPage() {
               </span>
             )}
             <div className="min-w-0">
-              <p className="font-body text-[11px] text-opac-ink-30">Clan</p>
+              <p className="font-body text-[11px] text-opac-ink-30">
+                {myClan?.leader?.id === String(userId)
+                  ? 'Clan · you lead'
+                  : myClan?.coLeader?.id === String(userId)
+                    ? 'Clan · co-leader'
+                    : 'Clan'}
+              </p>
               <p className="font-body text-[13px] font-semibold text-opac-ink truncate">
                 {myClan?.name ?? clanName}
               </p>

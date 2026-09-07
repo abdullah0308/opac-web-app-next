@@ -47,6 +47,12 @@ export interface Standing {
   qualified: boolean
 }
 
+export interface ClanOfficer {
+  id: string
+  name: string
+  avatarUrl?: string
+}
+
 export interface ClanStanding {
   id: string
   name: string
@@ -56,4 +62,6 @@ export interface ClanStanding {
   points: number
   members: number
   rank: number
+  leader: ClanOfficer | null
+  coLeader: ClanOfficer | null
 }

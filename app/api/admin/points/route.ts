@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getCurrentUserId, getUserRoles } from '@/lib/auth'
+import { relId } from '@/lib/relId'
 
 const SOURCES = ['attendance', 'pointing-day', 'dueling', 'competition', 'other'] as const
 
@@ -44,14 +45,14 @@ export async function POST(req: NextRequest) {
       collection: 'points-entries',
       overrideAccess: true,
       data: {
-        archer: archerId,
+        archer: relId(archerId) as string,
         source: source ?? 'competition',
         points: value,
         eventName: eventName || null,
         date: date ? new Date(date).toISOString() : new Date().toISOString(),
         season: settings?.season ?? String(new Date().getFullYear()),
         note: note || null,
-        awardedBy: adminId,
+        awardedBy: relId(adminId) as string,
       },
     })
 

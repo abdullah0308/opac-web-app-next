@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getCurrentUserId, getUserRoles } from '@/lib/auth'
+import { relId } from '@/lib/relId'
 
 /**
  * POST /api/coach/pathway
@@ -57,10 +58,10 @@ export async function POST(req: NextRequest) {
     })
 
     const data = {
-      archer: archerId,
-      pathwayStage: stageId,
+      archer: relId(archerId) as string,
+      pathwayStage: relId(stageId) as string,
       coachNotes: coachNotes ?? '',
-      updatedBy: userId,
+      updatedBy: relId(userId) as string,
       completedRequirements: flags,
     }
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getCurrentUserId } from '@/lib/auth'
+import { relId } from '@/lib/relId'
 
 /**
  * POST /api/scores/share
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
       collection: 'scores',
       id: scoreId,
       overrideAccess: true,
-      data: { sharedWith: [coachId] },
+      data: { sharedWith: [relId(coachId) as string] },
     })
 
     return NextResponse.json({ success: true, shared: true })

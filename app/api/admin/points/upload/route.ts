@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getCurrentUserId, getUserRoles } from '@/lib/auth'
+import { relId } from '@/lib/relId'
 
 /**
  * POST /api/admin/points/upload
@@ -222,14 +223,14 @@ export async function POST(req: NextRequest) {
         collection: 'points-entries',
         overrideAccess: true,
         data: {
-          archer: row.archer,
+          archer: relId(row.archer) as string,
           source: row.source as 'competition',
           points: row.points,
           eventName: row.eventName,
           date: row.date,
           season,
           note: row.note,
-          awardedBy: adminId,
+          awardedBy: relId(adminId) as string,
           batchId,
         },
       })

@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { relId } from './relId'
 
 /**
  * Attendance points.
@@ -46,7 +47,7 @@ export async function awardAttendancePoints(opts: {
     collection: 'points-entries',
     overrideAccess: true,
     data: {
-      archer: opts.archerId as string,
+      archer: relId(opts.archerId) as string,
       source: 'attendance',
       points: rate,
       eventName: 'Session attendance',

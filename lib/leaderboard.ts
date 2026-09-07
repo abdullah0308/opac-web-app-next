@@ -6,6 +6,7 @@ import {
   type Category,
   type Standing,
   type ClanStanding,
+  type ClanOfficer,
 } from './categories'
 
 /**
@@ -25,7 +26,7 @@ export {
   CATEGORY_LABEL,
   categoryFor,
 } from './categories'
-export type { Category, Standing, ClanStanding } from './categories'
+export type { Category, Standing, ClanStanding, ClanOfficer } from './categories'
 
 export interface LeaderboardData {
   season: string
@@ -82,7 +83,7 @@ export async function getLeaderboard(): Promise<LeaderboardData> {
       limit: 5000,
       depth: 0,
     }),
-    payload.find({ collection: 'clans', limit: 100, depth: 0 }),
+    payload.find({ collection: 'clans', limit: 100, depth: 1 }),
   ])
 
   // ── Sum points and attendance per archer ────────────────────────────────
@@ -177,6 +178,17 @@ export async function getLeaderboard(): Promise<LeaderboardData> {
     clanTotals.set(s.clanId, cur)
   }
 
+  const officer = (v: unknown): ClanOfficer | null => {
+    if (!v || typeof v !== 'object') return null
+    const o = v as { id?: string | number; name?: string; avatarUrl?: string }
+    if (o.id == null) return null
+    return {
+      id: String(o.id),
+      name: o.name ?? 'Member',
+      avatarUrl: o.avatarUrl,
+    }
+  }
+
   const clans: ClanStanding[] = (
     clansRes.docs as unknown as {
       id: string | number
@@ -184,6 +196,8 @@ export async function getLeaderboard(): Promise<LeaderboardData> {
       colour?: string
       logoUrl?: string
       motto?: string
+      leader?: unknown
+      coLeader?: unknown
     }[]
   )
     .map((c) => {
@@ -197,6 +211,8 @@ export async function getLeaderboard(): Promise<LeaderboardData> {
         points: agg.points,
         members: agg.members,
         rank: 0,
+        leader: officer(c.leader),
+        coLeader: officer(c.coLeader),
       }
     })
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getCurrentUserId, getUserRoles } from '@/lib/auth'
+import { relId, relIds } from '@/lib/relId'
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -24,10 +25,10 @@ export async function PATCH(req: NextRequest) {
     for (const field of allowedFields) {
       if (data[field] !== undefined) allowed[field] = data[field]
     }
-    // Coerce clanId to number (Payload relationship field requires numeric ID)
-    if (allowed.clanId !== undefined && allowed.clanId !== null && allowed.clanId !== '') {
-      allowed.clanId = Number(allowed.clanId)
-    }
+    // Relationship ids arrive as JSON strings but Payload validates them
+    // against the database id type (integer on Postgres). See lib/relId.
+    if (allowed.clanId !== undefined) allowed.clanId = relId(allowed.clanId)
+    if (allowed.guardians !== undefined) allowed.guardians = relIds(allowed.guardians)
     // Admin only: update password
     if (roles.includes('admin') && data.password) {
       allowed.password = data.password

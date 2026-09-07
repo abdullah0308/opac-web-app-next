@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getCurrentUserId, getUserRoles } from '@/lib/auth'
+import { relId } from '@/lib/relId'
 
 /**
  * POST /api/coach/verify-score
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
       overrideAccess: true,
       data: {
         verified: verified !== false,
-        verifiedBy: userId,
+        verifiedBy: relId(userId) as string,
         verifiedAt: new Date().toISOString(),
         ...(feedback !== undefined ? { coachFeedback: feedback } : {}),
       },
