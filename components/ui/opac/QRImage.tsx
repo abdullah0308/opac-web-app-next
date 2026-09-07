@@ -46,6 +46,15 @@ export function QRImage({ archerId, name }: Props) {
           margin: 2,
           errorCorrectionLevel: 'H',
           color: { dark: '#000000', light: '#FFFFFF' },
+        }).then(() => {
+          // qrcode writes style.width/height in px straight onto the canvas.
+          // Those inline values beat any class, so the height stays pinned at
+          // 620px while max-width squeezes the width — a stretched code that
+          // will not scan. Hand sizing back to CSS.
+          const el = largeRef.current
+          if (!el) return
+          el.style.width = '100%'
+          el.style.height = 'auto'
         })
       })
     })
@@ -97,10 +106,14 @@ export function QRImage({ archerId, name }: Props) {
                 {name}
               </p>
             )}
-            <canvas
-              ref={largeRef}
-              className="rounded-[14px] border border-[#E3E3DE] max-w-[min(78vw,420px)] h-auto"
-            />
+            {/* The wrapper owns the sizing; the canvas just fills it and keeps
+                its own 1:1 ratio, so the code can never end up stretched. */}
+            <div className="w-[min(78vw,60vh,420px)]">
+              <canvas
+                ref={largeRef}
+                className="block w-full h-auto aspect-square rounded-[14px] border border-[#E3E3DE]"
+              />
+            </div>
             <p className="font-mono text-[18px] font-semibold tracking-[0.14em] text-[#12200F] mt-5">
               {archerId}
             </p>
